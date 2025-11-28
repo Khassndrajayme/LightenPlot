@@ -2,10 +2,7 @@ import pandas as pd
 import numpy as np
 from typing import List, Dict, Tuple, Optional
 
-
-
 # DATA VALIDATION HELPERS
-
 
 def validate_dataframe(data: pd.DataFrame, min_rows: int = 1) -> bool:
     """
@@ -79,7 +76,6 @@ def validate_numeric_column(data: pd.DataFrame, column: str) -> bool:
 
 # DATA CLEANING HELPERS
 
-
 def get_numeric_columns(data: pd.DataFrame) -> List[str]:
     """
     Get list of numeric column names
@@ -142,9 +138,7 @@ def detect_outliers_iqr(data: pd.Series) -> pd.Series:
     return (data < lower_bound) | (data > upper_bound)
 
 
-
 # STATISTICAL HELPERS
-
 
 def calculate_statistics(data: pd.Series) -> Dict[str, float]:
     """
@@ -212,9 +206,7 @@ def find_highly_correlated_pairs(data: pd.DataFrame, threshold: float = 0.8) -> 
     return sorted(high_corr, key=lambda x: abs(x[2]), reverse=True)
 
 
-
 # FORMATTING HELPERS
-
 
 def format_number(value: float, decimals: int = 2) -> str:
     """
@@ -389,7 +381,6 @@ def generate_model_results(n_models: int = 3, seed: int = 42) -> Dict[str, Dict[
 
 # EXPORT HELPERS
 
-
 def export_summary_to_csv(summary: pd.DataFrame, filename: str):
     """
     Export summary DataFrame to CSV
@@ -416,7 +407,6 @@ def export_summary_to_excel(summary: pd.DataFrame, filename: str):
 
 
 # PRINT HELPERS
-
 
 def print_section_header(title: str, width: int = 80):
     """
@@ -461,7 +451,6 @@ def print_data_info(data: pd.DataFrame):
 
 
 # DEMO FUNCTION
-
 
 def demo_helpers():
     """Demo all helper functions"""
