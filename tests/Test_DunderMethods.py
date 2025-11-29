@@ -82,4 +82,4 @@ class TestDunderMethods(unittest.TestCase):
 
 if __name__ == '__main__':
     # Run with verbose output when executed directly
-    unittest.main(verbosity=2)     
+    unittest.main(verbosity=2)               
