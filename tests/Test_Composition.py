@@ -28,8 +28,6 @@ class TestComposition(unittest.TestCase):
 
     
 # Composition Checks (Verifying 'Has-A' Relationship)
-
-        
     def test_plotease_contains_diagnostic_plotter(self):
         """Test that PlotEase contains a DiagnosticPlotter instance."""
         pe = PlotEase(self.data)
@@ -56,9 +54,7 @@ class TestComposition(unittest.TestCase):
         self.assertIsInstance(pe._plotter, QuickPlotter)
 
 
- # Delegation Checks_Verifying Functionality Transfer
-
-        
+ # Delegation Checks_Verifying Functionality Transfer     
     def test_delegation_to_summary_generator(self):
         """Test that PlotEase's tabular_summary method correctly delegates to SummaryGenerator."""
         pe = PlotEase(self.data)
