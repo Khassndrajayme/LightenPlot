@@ -85,7 +85,7 @@ def demo_basic_usage():
     print("  gear - Number of forward gears")
     print("  carb - Number of carburetors")
     
-    print(f"\n📝 First 5 cars:")
+    print(f"First 5 cars:")
     print(mtcars.head())
     
     # Initialize PlotEase
