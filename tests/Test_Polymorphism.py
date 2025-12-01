@@ -3,7 +3,6 @@ Unit Tests for Polymorphism
 This file verifies that concrete classes correctly implement the abstract methods
 defined in VisualizationBase, allowing for polymorphic method calls (e.g., render()).
 """
-
 import unittest
 import pandas as pd
 # Import classes that implement the abstract render() method
