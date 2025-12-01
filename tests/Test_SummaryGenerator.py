@@ -3,7 +3,6 @@ Unit Tests for SummaryGenerator Component
 This file verifies the functionality of the data summarization component,
 including calculation accuracy and output formatting.
 """
-
 import unittest
 import pandas as pd
 import numpy as np
