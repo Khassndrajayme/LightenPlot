@@ -3,7 +3,6 @@ Unit Tests for QuickPlotter Component
 This file verifies the functionality of the QuickPlotter, focusing on
 automatic plot type detection and visualization execution.
 """
-
 import unittest
 import pandas as pd
 # Import the classes specific to this component's tests
