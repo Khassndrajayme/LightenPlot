@@ -3,7 +3,6 @@ Unit Tests for VisualizationBase (Abstract Base Class)
 This file verifies the abstract nature, inheritance, and core non-abstract
 methods of the VisualizationBase class.
 """
-
 import unittest
 import pandas as pd
 from abc import ABC
