@@ -2,7 +2,6 @@
 Unit Tests for DiagnosticPlotter Component
 This file verifies the functionality of the multi-plot, diagnostic visualization component.
 """
-
 import unittest
 import pandas as pd
 # Import the classes specific to this component's tests
