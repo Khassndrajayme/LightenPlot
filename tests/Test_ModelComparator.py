@@ -2,7 +2,6 @@
 Unit Tests for ModelComparator Component
 This file verifies the logic for managing and comparing machine learning model performance metrics.
 """
-
 import unittest
 import pandas as pd
 # Import the class specific to this component's tests
