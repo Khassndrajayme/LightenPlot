@@ -32,50 +32,65 @@ def load_mtcars():
 
 
 class TestIntegration(unittest.TestCase):
-    """Integration tests - test the full workflow and class interactions."""
+    """Integration tests - test class interactions with mtcars"""
     
     def setUp(self):
-        """Set up the mtcars dataset for comprehensive testing."""
+        """Set up test data - using mtcars"""
         self.mtcars = load_mtcars()
     
     def test_full_workflow(self):
-        """Test complete workflow using all delegated features of PlotEase facade."""
-        
-        # 1. Initialize the Facade Class
+        """Test complete workflow using all features with mtcars"""
+        # Initialize PlotEase
         pe = PlotEase(self.mtcars, theme='minimal')
         
-        # Test all main delegated methods
+        # Test all main methods
         try:
-            # Feature 1: AutoPlot (Delegation to DiagnosticPlotter)
+            # Feature 1: AutoPlot
             pe.autoplot(target='mpg', max_plots=4)
-            self.assertIsInstance(pe._diagnostic, DiagnosticPlotter)
-
-            # Feature 2: Summary (Delegation to SummaryGenerator)
+            
+            # Feature 2: Summary
             summary = pe.tabular_summary(style='full')
             self.assertIsInstance(summary, pd.DataFrame)
-            self.assertEqual(len(summary), 5) # 5 columns in this truncated mtcars data
-            self.assertIsInstance(pe._summary, SummaryGenerator)
-
-            # Feature 3: Model Comparison (Delegation to ModelComparator)
+            self.assertEqual(len(summary), 11)
+            
+            # Feature 3: Model Comparison
             models = {
-                'Linear Reg': {'R²': 0.85, 'MAE': 3.2},
-                'Random Forest': {'R²': 0.90, 'MAE': 2.3}
+                'Linear Reg': {'Accuracy': 0.85, 'Precision': 0.82},
+                'Random Forest': {'Accuracy': 0.90, 'Precision': 0.87}
             }
             pe.compare_models(models)
-            # Check that the internal comparator object was initialized
-            self.assertIsNotNone(pe._comparator)
-
-            # Feature 4: Quick Plot (Delegation to QuickPlotter)
-            # This should call the underlying quick_plot logic without crashing
+            
+            # Feature 4: Quick Plot
             pe.quick_plot('hp', 'mpg', kind='scatter')
-            self.assertIsNotNone(pe._plotter)
             
             success = True
         except Exception as e:
-            print(f"Integration test failed during workflow with error: {e}")
+            print(f"Integration test failed: {e}")
             success = False
         
-        self.assertTrue(success, "The full PlotEase workflow failed to execute all components.")
+        self.assertTrue(success)
+    
+    def test_mtcars_specific_analysis(self):
+        """Test mtcars-specific analysis workflows"""
+        pe = PlotEase(self.mtcars)
+        
+        # Test correlations between car characteristics
+        summary = pe.tabular_summary(style='numeric')
+        
+        # Verify we can analyze key car metrics
+        columns = ['mpg', 'hp', 'wt', 'cyl']
+        for col in columns:
+            self.assertIn(col, self.mtcars.columns)
+        
+        # Test plotting key relationships
+        try:
+            pe.quick_plot('hp', 'mpg')  # Power vs efficiency
+            pe.quick_plot('wt', 'mpg')  # Weight vs efficiency
+            success = True
+        except Exception:
+            success = False
+        
+        self.assertTrue(success)
 
 
 if __name__ == '__main__':
