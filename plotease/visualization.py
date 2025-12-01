@@ -57,7 +57,7 @@ class VisualizationBase(ABC):
         """
         Retrieves the underlying pandas DataFrame used for visualization.
         """
-        return self._data
+        return self._data.copy()
 
     def set_theme(self, theme: str):
         """
