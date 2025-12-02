@@ -1,6 +1,5 @@
 """
 COMPLETE Unit Tests for PlotEase Library - mtcars Dataset
-Run with: python tests/test_complete.py
 """
 
 import unittest
@@ -408,4 +407,4 @@ if __name__ == '__main__':
     
     unittest.main(verbosity=2)
 
-tests/test_complete.py
+test_all.py
