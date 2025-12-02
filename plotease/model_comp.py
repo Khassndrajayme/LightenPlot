@@ -132,7 +132,7 @@ class ModelComparator:
         return self._df.equals(other._df)
 
     def __gt__(self, other) -> bool:
-    """Implements the greater than operator (>)."""
+        """Implements the greater than operator (>)."""
         if not isinstance(other, ModelComparator):
             return NotImplemented
     
