@@ -1,5 +1,5 @@
 """
-COMPLETE Unit Tests for PlotEase Library - mtcars Dataset
+COMPLETE Unit Tests for LightenPlot Library - mtcars Dataset
 """
 
 import unittest
@@ -11,7 +11,8 @@ from LightenPlot import (
     DiagnosticPlotter, 
     SummaryGenerator, 
     ModelComparator, 
-    QuickPlotter
+    QuickPlotter,
+    VisualizationBase
 )
 
 
@@ -56,7 +57,7 @@ def load_mtcars():
 
 # TEST 1: INITIALIZATION & ENCAPSULATION (5 tests)
 
-class TestPlotEaseInitialization(unittest.TestCase):
+class TestLightenPlotInitialization(unittest.TestCase):
     """Test initialization and encapsulation"""
     
     def setUp(self):
@@ -64,31 +65,31 @@ class TestPlotEaseInitialization(unittest.TestCase):
     
     def test_valid_initialization(self):
         """Test successful initialization"""
-        pe = PlotEase(self.mtcars, theme='minimal')
-        self.assertIsNotNone(pe)
-        self.assertEqual(len(pe), 32)
+        lp = LightenPlot(self.mtcars, theme='minimal')
+        self.assertIsNotNone(lp)
+        self.assertEqual(len(lp), 32)
     
     def test_invalid_data_type(self):
         """Test TypeError with wrong data type"""
         with self.assertRaises(TypeError):
-            PlotEase([1, 2, 3])
+            LightenPlot([1, 2, 3])
     
     def test_empty_dataframe(self):
         """Test ValueError with empty DataFrame"""
         with self.assertRaises(ValueError):
-            PlotEase(pd.DataFrame())
+            LightenPlot(pd.DataFrame())
     
     def test_get_data_encapsulation(self):
         """Test getter method (encapsulation)"""
-        pe = PlotEase(self.mtcars)
-        data = pe.get_data()
+        lp = LightenPlot(self.mtcars)
+        data = lp.get_data()
         self.assertTrue(data.equals(self.mtcars))
     
     def test_set_theme_encapsulation(self):
         """Test setter method (encapsulation)"""
-        pe = PlotEase(self.mtcars, theme='default')
-        pe.set_theme('dark')
-        self.assertEqual(pe._theme, 'dark')
+        lp = LightenPlot(self.mtcars, theme='default')
+        lp.set_theme('dark')
+        self.assertEqual(lp._theme, 'dark')
 
 
 # TEST 2: DUNDER METHODS (4 tests)
@@ -102,27 +103,27 @@ class TestDunderMethods(unittest.TestCase):
     
     def test_repr(self):
         """Test __repr__ method"""
-        pe = PlotEase(self.mtcars)
-        repr_str = repr(pe)
-        self.assertIn('PlotEase', repr_str)
+        lp = LightenPlot(self.mtcars)
+        repr_str = repr(lp)
+        self.assertIn('LightenPlot', repr_str)
         self.assertIn('rows=32', repr_str)
     
     def test_len(self):
         """Test __len__ method"""
-        pe = PlotEase(self.mtcars)
-        self.assertEqual(len(pe), 32)
+        lp = LightenPlot(self.mtcars)
+        self.assertEqual(len(lp), 32)
     
     def test_eq(self):
         """Test __eq__ method"""
-        pe1 = PlotEase(self.mtcars, theme='minimal')
-        pe2 = PlotEase(self.mtcars, theme='minimal')
-        self.assertEqual(pe1, pe2)
+        lp1 = LightenPlot(self.mtcars, theme='minimal')
+        lp2 = LightenPlot(self.mtcars, theme='minimal')
+        self.assertEqual(lp1, lp2)
     
     def test_lt(self):
         """Test __lt__ method (less than)"""
-        pe_full = PlotEase(self.mtcars)
-        pe_subset = PlotEase(self.mtcars_subset)
-        self.assertTrue(pe_subset < pe_full)
+        lp_full = LightenPlot(self.mtcars)
+        lp_subset = LightenPlot(self.mtcars_subset)
+        self.assertTrue(lp_subset < lp_full)
 
 
 
@@ -134,10 +135,10 @@ class TestInheritance(unittest.TestCase):
     def setUp(self):
         self.mtcars = load_mtcars()
     
-    def test_plotease_inherits_base(self):
-        """Test PlotEase inherits from VisualizationBase"""
-        pe = PlotEase(self.mtcars)
-        self.assertIsInstance(pe, VisualizationBase)
+    def test_lightenplot_inherits_base(self):
+        """Test LightenPlot inherits from VisualizationBase"""
+        lp = LightenPlot(self.mtcars)
+        self.assertIsInstance(lp, VisualizationBase)
     
     def test_diagnostic_inherits_base(self):
         """Test DiagnosticPlotter inherits from VisualizationBase"""
@@ -160,19 +161,19 @@ class TestPolymorphism(unittest.TestCase):
     
     def test_render_method_exists(self):
         """Test all classes have render() method"""
-        pe = PlotEase(self.mtcars)
+        lp = LightenPlot(self.mtcars)
         dp = DiagnosticPlotter(self.mtcars)
         qp = QuickPlotter(self.mtcars)
         
-        self.assertTrue(hasattr(pe, 'render'))
+        self.assertTrue(hasattr(lp, 'render'))
         self.assertTrue(hasattr(dp, 'render'))
         self.assertTrue(hasattr(qp, 'render'))
     
     def test_render_executes(self):
         """Test render() methods execute"""
-        pe = PlotEase(self.mtcars)
+        lp = LightenPlot(self.mtcars)
         try:
-            pe.render()
+            lp.render()
             success = True
         except:
             success = False
@@ -182,25 +183,25 @@ class TestPolymorphism(unittest.TestCase):
 # TEST 5: COMPOSITION (3 tests)
 
 class TestComposition(unittest.TestCase):
-    """Test composition (PlotEase contains other classes)"""
+    """Test composition (LightenPlot contains other classes)"""
     
     def setUp(self):
         self.mtcars = load_mtcars()
     
     def test_contains_diagnostic(self):
-        """Test PlotEase contains DiagnosticPlotter"""
-        pe = PlotEase(self.mtcars)
-        self.assertIsInstance(pe._diagnostic, DiagnosticPlotter)
+        """Test LightenPlot contains DiagnosticPlotter"""
+        lp = LightenPlot(self.mtcars)
+        self.assertIsInstance(lp._diagnostic, DiagnosticPlotter)
     
     def test_contains_summary(self):
-        """Test PlotEase contains SummaryGenerator"""
-        pe = PlotEase(self.mtcars)
-        self.assertIsInstance(pe._summary, SummaryGenerator)
+        """Test LightenPlot contains SummaryGenerator"""
+        lp = LightenPlot(self.mtcars)
+        self.assertIsInstance(lp._summary, SummaryGenerator)
     
     def test_contains_plotter(self):
-        """Test PlotEase contains QuickPlotter"""
-        pe = PlotEase(self.mtcars)
-        self.assertIsInstance(pe._plotter, QuickPlotter)
+        """Test LightenPlot contains QuickPlotter"""
+        lp = LightenPlot(self.mtcars)
+        self.assertIsInstance(lp._plotter, QuickPlotter)
 
 
 # TEST 6: DIAGNOSTIC PLOTTER (3 tests)
@@ -346,14 +347,14 @@ class TestIntegration(unittest.TestCase):
     
     def test_full_workflow(self):
         """Test complete workflow with all features"""
-        pe = PlotEase(self.mtcars, theme='minimal')
+        lp = LightenPlot(self.mtcars, theme='minimal')
         
         try:
             # Feature 1
-            pe.autoplot(target='mpg', max_plots=2)
+            lp.autoplot(target='mpg', max_plots=2)
             
             # Feature 2
-            summary = pe.tabular_summary(style='full')
+            summary = lp.tabular_summary(style='full')
             self.assertIsInstance(summary, pd.DataFrame)
             
             # Feature 3
@@ -361,10 +362,10 @@ class TestIntegration(unittest.TestCase):
                 'Model A': {'Accuracy': 0.85},
                 'Model B': {'Accuracy': 0.90}
             }
-            pe.compare_models(models)
+            lp.compare_models(models)
             
             # Feature 4
-            pe.quick_plot('hp', 'mpg', kind='scatter')
+            lp.quick_plot('hp', 'mpg', kind='scatter')
             
             success = True
         except Exception as e:
@@ -375,8 +376,8 @@ class TestIntegration(unittest.TestCase):
     
     def test_mtcars_analysis(self):
         """Test mtcars-specific analysis"""
-        pe = PlotEase(self.mtcars)
-        summary = pe.tabular_summary(style='numeric')
+        lp = LightenPlot(self.mtcars)
+        summary = lp.tabular_summary(style='numeric')
         
         # Verify key columns exist
         for col in ['mpg', 'hp', 'wt']:
@@ -387,7 +388,7 @@ class TestIntegration(unittest.TestCase):
 
 if __name__ == '__main__':
     print("="*80)
-    print("PLOTEASE COMPLETE TEST SUITE - mtcars Dataset")
+    print("LIGHTENPLOT COMPLETE TEST SUITE - mtcars Dataset")
     print("="*80)
     print("\nTesting OOP Requirements:")
     print("  ✓ Encapsulation (5 tests)")
