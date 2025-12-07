@@ -4,12 +4,13 @@ from .visualization import VisualizationBase
 from .diagnostic import DiagnosticPlotter
 from .summary import SummaryGenerator
 from .quick_plotter import QuickPlotter
-from .model_comp import ModelComparator # Assuming this file exists
+from .model_comp import ModelComparator
 from typing import Optional, List, Dict
 
-class PlotEase(VisualizationBase):
+# --- CRITICAL CHANGE 1: Rename the Class ---
+class LightenPlot(VisualizationBase):
     """
-    Main entry point for the PlotEase library.
+    Main entry point for the Lighten Plot library.
     Demonstrates Composition by aggregating specialized components.
     """
     def __init__(self, data: pd.DataFrame, theme: str = 'default'):
@@ -60,20 +61,23 @@ class PlotEase(VisualizationBase):
     # --- Dunder Methods ---
     def __repr__(self) -> str:
         """Returns the official string representation."""
-        return f"PlotEase(rows={len(self._data)}, theme='{self._theme}')"
+        # --- CRITICAL CHANGE 2: Update Class Name in __repr__ ---
+        return f"LightenPlot(rows={len(self._data)}, theme='{self._theme}')"
 
     def __len__(self) -> int:
         """Returns the number of rows in the data (used for __lt__ logic)."""
         return len(self._data)
         
     def __eq__(self, other) -> bool:
-        """Compares two PlotEase objects based on data and theme."""
-        if not isinstance(other, PlotEase):
+        """Compares two LightenPlot objects based on data and theme."""
+        # --- CRITICAL CHANGE 3: Update Class Check in __eq__ ---
+        if not isinstance(other, LightenPlot):
             return False
         return self._data.equals(other._data) and self._theme == other._theme
         
     def __lt__(self, other) -> bool:
-        """Compares PlotEase objects based on data size."""
-        if not isinstance(other, PlotEase):
+        """Compares LightenPlot objects based on data size."""
+        # --- CRITICAL CHANGE 4: Update Class Check in __lt__ ---
+        if not isinstance(other, LightenPlot):
             return NotImplemented
         return len(self) < len(other)
