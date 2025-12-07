@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Optional, List
-from .visualization import VisualizationBase
+from .visualization_base import VisualizationBase
 
 
 class SummaryGenerator(VisualizationBase):
@@ -24,23 +24,25 @@ class SummaryGenerator(VisualizationBase):
         data (pd.DataFrame): The data to summarize
     """
     
-    def __init__(self, data: pd.DataFrame, **kwargs):
+    def __init__(self, data: pd.DataFrame, theme: str = 'default'):
         """
         Initialize SummaryGenerator with data.
         
         Args:
             data: pandas DataFrame to summarize
-            **kwargs: Additional arguments passed to VisualizationBase
+            theme: Visual theme to use
         """
-        super().__init__(**kwargs)
-        if not isinstance(data, pd.DataFrame):
-            raise TypeError("data must be a pandas DataFrame")
-        self._data = data
+        super().__init__(data, theme)
     
-    @property
-    def data(self) -> pd.DataFrame:
-        """Get the underlying data."""
-        return self._data
+    def render(self) -> None:
+        """
+        Render method - required by abstract base class.
+        Creates a default summary visualization.
+        """
+        print("Rendering SummaryGenerator...")
+        fig = self.plot()
+        plt.show()
+        return fig
     
     def plot(self, columns: Optional[List[str]] = None) -> plt.Figure:
         """
@@ -56,7 +58,7 @@ class SummaryGenerator(VisualizationBase):
             columns = self._data.select_dtypes(include=[np.number]).columns.tolist()
         
         if len(columns) == 0:
-            fig, ax = plt.subplots(figsize=self._figsize)
+            fig, ax = plt.subplots(figsize=(10, 6))
             ax.text(0.5, 0.5, 'No numeric columns to summarize', 
                    ha='center', va='center', fontsize=14)
             ax.axis('off')
@@ -64,14 +66,14 @@ class SummaryGenerator(VisualizationBase):
         
         summary = self._data[columns].describe()
         
-        fig, ax = plt.subplots(figsize=self._figsize)
+        fig, ax = plt.subplots(figsize=(12, 8))
         
         # Create heatmap of summary statistics
         sns.heatmap(summary, annot=True, fmt='.2f', cmap='YlGnBu', 
                    ax=ax, cbar_kws={'label': 'Value'})
         ax.set_title('Summary Statistics Heatmap', fontsize=14, fontweight='bold')
-        ax.set_xlabel('Columns')
-        ax.set_ylabel('Statistics')
+        ax.set_xlabel('Columns', fontweight='bold')
+        ax.set_ylabel('Statistics', fontweight='bold')
         
         plt.tight_layout()
         return fig
@@ -186,7 +188,7 @@ class SummaryGenerator(VisualizationBase):
             columns = self._data.select_dtypes(include=[np.number]).columns.tolist()
         
         if len(columns) < 2:
-            fig, ax = plt.subplots(figsize=self._figsize)
+            fig, ax = plt.subplots(figsize=(10, 6))
             ax.text(0.5, 0.5, 'Need at least 2 numeric columns', 
                    ha='center', va='center', fontsize=14)
             ax.axis('off')
@@ -206,7 +208,7 @@ class SummaryGenerator(VisualizationBase):
                         'Correlation': corr_value
                     })
         
-        fig, ax = plt.subplots(figsize=self._figsize)
+        fig, ax = plt.subplots(figsize=(10, 6))
         
         if high_corr:
             df_corr = pd.DataFrame(high_corr)
@@ -327,68 +329,3 @@ class SummaryGenerator(VisualizationBase):
         plt.suptitle(f'Statistical Overview: {column}', 
                     fontsize=16, fontweight='bold', y=0.98)
         return fig
-    
-    def compare_groups(self, column: str, group_by: str) -> plt.Figure:
-        """
-        Compare summary statistics across different groups.
-        
-        Args:
-            column: Column to analyze
-            group_by: Column to group by
-            
-        Returns:
-            matplotlib.figure.Figure: The created figure
-        """
-        if column not in self._data.columns or group_by not in self._data.columns:
-            raise ValueError("Columns not found in data")
-        
-        fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-        
-        # Box plot
-        self._data.boxplot(column=column, by=group_by, ax=axes[0, 0])
-        axes[0, 0].set_title(f'{column} by {group_by}')
-        axes[0, 0].set_xlabel(group_by)
-        axes[0, 0].set_ylabel(column)
-        
-        # Violin plot
-        groups = self._data[group_by].unique()
-        positions = range(len(groups))
-        data_by_group = [self._data[self._data[group_by] == g][column].dropna() 
-                        for g in groups]
-        
-        parts = axes[0, 1].violinplot(data_by_group, positions=positions, 
-                                      showmeans=True, showmedians=True)
-        axes[0, 1].set_xticks(positions)
-        axes[0, 1].set_xticklabels(groups)
-        axes[0, 1].set_title(f'Distribution of {column} by {group_by}')
-        axes[0, 1].set_xlabel(group_by)
-        axes[0, 1].set_ylabel(column)
-        
-        # Bar plot of means
-        means = self._data.groupby(group_by)[column].mean().sort_values()
-        means.plot(kind='barh', ax=axes[1, 0], color='skyblue', edgecolor='black')
-        axes[1, 0].set_title(f'Mean {column} by {group_by}')
-        axes[1, 0].set_xlabel(f'Mean {column}')
-        axes[1, 0].grid(axis='x', alpha=0.3)
-        
-        # Summary statistics table
-        summary = self._data.groupby(group_by)[column].describe()
-        axes[1, 1].axis('off')
-        
-        table = axes[1, 1].table(cellText=summary.round(2).values,
-                                colLabels=summary.columns,
-                                rowLabels=summary.index,
-                                cellLoc='center',
-                                loc='center')
-        table.auto_set_font_size(False)
-        table.set_fontsize(8)
-        table.scale(1, 1.5)
-        
-        plt.suptitle(f'Group Comparison: {column} by {group_by}', 
-                    fontsize=14, fontweight='bold')
-        plt.tight_layout()
-        return fig
-    
-    def __repr__(self) -> str:
-        """Return string representation."""
-        return f"SummaryGenerator(data_shape={self._data.shape})"

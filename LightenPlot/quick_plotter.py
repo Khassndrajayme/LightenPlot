@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Optional, List, Union
-from .visualization import VisualizationBase
+from .visualization_base import VisualizationBase
 
 
 class QuickPlotter(VisualizationBase):
@@ -21,23 +21,25 @@ class QuickPlotter(VisualizationBase):
     with minimal code and sensible defaults.
     """
     
-    def __init__(self, **kwargs):
+    def __init__(self, data: Optional[pd.DataFrame] = None, theme: str = 'default'):
         """
         Initialize QuickPlotter.
         
         Args:
-            **kwargs: Additional arguments passed to VisualizationBase
+            data: Optional DataFrame
+            theme: Visual theme
         """
-        super().__init__(**kwargs)
+        # QuickPlotter can work without data since it uses static methods
+        if data is None:
+            data = pd.DataFrame()  # Empty DataFrame
+        super().__init__(data, theme)
     
-    def plot(self, *args, **kwargs) -> plt.Figure:
+    def render(self) -> None:
         """
-        Generic plot method - delegates to quick_plot.
-        
-        Returns:
-            matplotlib.figure.Figure: The created figure
+        Render method - required by abstract base class.
         """
-        return self.quick_plot(*args, **kwargs)
+        print("QuickPlotter ready for quick plotting operations.")
+        print("Use methods like quick_scatter(), quick_hist(), etc.")
     
     @staticmethod
     def quick_scatter(data: pd.DataFrame, x: str, y: str, 
@@ -173,44 +175,6 @@ class QuickPlotter(VisualizationBase):
         return fig
     
     @staticmethod
-    def quick_bar(data: pd.DataFrame, x: str, y: str,
-                  title: Optional[str] = None, horizontal: bool = False,
-                  **kwargs) -> plt.Figure:
-        """
-        Create a quick bar plot.
-        
-        Args:
-            data: DataFrame containing the data
-            x: Column name for categories
-            y: Column name for values
-            title: Plot title
-            horizontal: If True, create horizontal bars
-            **kwargs: Additional bar plot arguments
-            
-        Returns:
-            matplotlib.figure.Figure: The created figure
-        """
-        fig, ax = plt.subplots(figsize=(10, 6))
-        
-        if horizontal:
-            ax.barh(data[x], data[y], **kwargs)
-            ax.set_xlabel(y, fontweight='bold')
-            ax.set_ylabel(x, fontweight='bold')
-        else:
-            ax.bar(data[x], data[y], **kwargs)
-            ax.set_xlabel(x, fontweight='bold')
-            ax.set_ylabel(y, fontweight='bold')
-        
-        if title:
-            ax.set_title(title, fontsize=14, fontweight='bold')
-        else:
-            ax.set_title('Bar Plot', fontsize=14, fontweight='bold')
-        
-        ax.grid(alpha=0.3, axis='x' if horizontal else 'y')
-        plt.tight_layout()
-        return fig
-    
-    @staticmethod
     def quick_heatmap(data: pd.DataFrame, columns: Optional[List[str]] = None,
                       title: Optional[str] = None, **kwargs) -> plt.Figure:
         """
@@ -242,101 +206,6 @@ class QuickPlotter(VisualizationBase):
         
         plt.tight_layout()
         return fig
-    
-    @staticmethod
-    def quick_violin(data: pd.DataFrame, x: str, y: str,
-                     title: Optional[str] = None, **kwargs) -> plt.Figure:
-        """
-        Create a quick violin plot.
-        
-        Args:
-            data: DataFrame containing the data
-            x: Column name for categories
-            y: Column name for values
-            title: Plot title
-            **kwargs: Additional violin plot arguments
-            
-        Returns:
-            matplotlib.figure.Figure: The created figure
-        """
-        fig, ax = plt.subplots(figsize=(10, 6))
-        
-        sns.violinplot(data=data, x=x, y=y, ax=ax, **kwargs)
-        
-        if title:
-            ax.set_title(title, fontsize=14, fontweight='bold')
-        else:
-            ax.set_title('Violin Plot', fontsize=14, fontweight='bold')
-        
-        ax.set_xlabel(x, fontweight='bold')
-        ax.set_ylabel(y, fontweight='bold')
-        plt.tight_layout()
-        return fig
-    
-    @staticmethod
-    def quick_pie(data: pd.DataFrame, column: str, 
-                  title: Optional[str] = None, **kwargs) -> plt.Figure:
-        """
-        Create a quick pie chart.
-        
-        Args:
-            data: DataFrame containing the data
-            column: Column name for categories
-            title: Plot title
-            **kwargs: Additional pie chart arguments
-            
-        Returns:
-            matplotlib.figure.Figure: The created figure
-        """
-        fig, ax = plt.subplots(figsize=(10, 8))
-        
-        value_counts = data[column].value_counts()
-        ax.pie(value_counts.values, labels=value_counts.index, 
-              autopct='%1.1f%%', **kwargs)
-        
-        if title:
-            ax.set_title(title, fontsize=14, fontweight='bold')
-        else:
-            ax.set_title(f'Distribution of {column}', fontsize=14, fontweight='bold')
-        
-        plt.tight_layout()
-        return fig
-    
-    @staticmethod
-    def quick_plot(data: pd.DataFrame, x: str, y: str, kind: str = 'scatter',
-                   title: Optional[str] = None, **kwargs) -> plt.Figure:
-        """
-        Create a quick plot of any type.
-        
-        Args:
-            data: DataFrame containing the data
-            x: Column name for x-axis
-            y: Column name for y-axis
-            kind: Type of plot ('scatter', 'line', 'bar', 'box')
-            title: Plot title
-            **kwargs: Additional plotting arguments
-            
-        Returns:
-            matplotlib.figure.Figure: The created figure
-        """
-        plot_functions = {
-            'scatter': QuickPlotter.quick_scatter,
-            'line': QuickPlotter.quick_line,
-            'bar': QuickPlotter.quick_bar,
-            'hist': QuickPlotter.quick_hist,
-            'box': QuickPlotter.quick_box,
-            'violin': QuickPlotter.quick_violin
-        }
-        
-        if kind not in plot_functions:
-            raise ValueError(f"Unknown plot kind: {kind}. Choose from {list(plot_functions.keys())}")
-        
-        if kind in ['hist', 'box']:
-            return plot_functions[kind](data, x, title=title, **kwargs)
-        elif kind == 'violin':
-            return plot_functions[kind](data, x, y, title=title, **kwargs)
-        else:
-            return plot_functions[kind](data, x, y, title=title, **kwargs)
     
     @staticmethod
     def plot_all(data: pd.DataFrame, x: str, y: str,
@@ -390,44 +259,6 @@ class QuickPlotter(VisualizationBase):
         
         plt.suptitle(f'Multiple Plot Types: {y} vs {x}', 
                     fontsize=16, fontweight='bold')
-        plt.tight_layout()
-        return fig
-    
-    @staticmethod
-    def quick_comparison(data: pd.DataFrame, columns: List[str],
-                        plot_type: str = 'box') -> plt.Figure:
-        """
-        Quick comparison of multiple columns.
-        
-        Args:
-            data: DataFrame containing the data
-            columns: List of columns to compare
-            plot_type: Type of comparison plot ('box', 'violin', 'hist')
-            
-        Returns:
-            matplotlib.figure.Figure: The created figure
-        """
-        fig, ax = plt.subplots(figsize=(12, 6))
-        
-        if plot_type == 'box':
-            data[columns].boxplot(ax=ax, patch_artist=True)
-            ax.set_title('Box Plot Comparison', fontsize=14, fontweight='bold')
-        elif plot_type == 'violin':
-            # Melt data for violin plot
-            melted = data[columns].melt(var_name='Column', value_name='Value')
-            sns.violinplot(data=melted, x='Column', y='Value', ax=ax)
-            ax.set_title('Violin Plot Comparison', fontsize=14, fontweight='bold')
-        elif plot_type == 'hist':
-            for col in columns:
-                data[col].dropna().plot(kind='density', ax=ax, label=col, linewidth=2)
-            ax.set_title('Distribution Comparison', fontsize=14, fontweight='bold')
-            ax.legend()
-            ax.set_xlabel('Value')
-            ax.set_ylabel('Density')
-        else:
-            raise ValueError(f"Unknown plot type: {plot_type}")
-        
-        ax.grid(alpha=0.3)
         plt.tight_layout()
         return fig
     
