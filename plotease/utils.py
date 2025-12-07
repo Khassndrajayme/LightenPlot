@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import pandas.api.types as ptypes # CRITICAL ADDITION: For robust type checking
+import matplotlib.pyplot as plt    # GOOD PRACTICE: Move Matplotlib to top since it's a plotting library dependency
 from typing import List, Dict, Tuple, Optional
 
 # DATA VALIDATION HELPERS
@@ -67,7 +69,8 @@ def validate_numeric_column(data: pd.DataFrame, column: str) -> bool:
     """
     validate_column_exists(data, column)
     
-    if data[column].dtype not in [np.number, 'int64', 'float64']:
+    # CRITICAL CHANGE: Use Pandas API for robust check of all numeric types
+    if not ptypes.is_numeric_dtype(data[column]): 
         raise ValueError(f"Column '{column}' must be numeric. Got {data[column].dtype}")
     
     return True
@@ -271,7 +274,7 @@ def generate_color_palette(n_colors: int, palette: str = 'viridis') -> List[str]
     Returns:
         List of color codes
     """
-    import matplotlib.pyplot as plt
+    # Removed local import since it's now at the top
     cmap = plt.get_cmap(palette)
     return [cmap(i/n_colors) for i in range(n_colors)]
 
@@ -454,7 +457,8 @@ def print_data_info(data: pd.DataFrame):
 
 def demo_helpers():
     """Demo all helper functions"""
-    print_section_header("PLOTEASE HELPER FUNCTIONS DEMO")
+    # CRITICAL CHANGE: Update library name for consistency
+    print_section_header("LIGHTENPLOT HELPER FUNCTIONS DEMO") 
     
     # Generate sample data
     print("1. Generating sample data...")
