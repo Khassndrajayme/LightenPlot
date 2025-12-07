@@ -7,7 +7,6 @@ from .quick_plotter import QuickPlotter
 from .model_comp import ModelComparator
 from typing import Optional, List, Dict
 
-# --- CRITICAL CHANGE 1: Rename the Class ---
 class LightenPlot(VisualizationBase):
     """
     Main entry point for the Lighten Plot library.
