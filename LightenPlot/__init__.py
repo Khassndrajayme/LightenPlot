@@ -15,13 +15,13 @@ Example:
 
 # Version information
 __version__ = '1.0.0'
-__author__ = 'RichieClan' # Team name updated
+__author__ = 'RichieClan' 
 __email__ = 'your.email@example.com'
 __license__ = 'MIT'
 
 # Import main classes
 from .visualization import VisualizationBase
-from .LigthenPlot import LightenPlot 
+from .LightenPlot import LightenPlot 
 from .diagnostic import DiagnosticPlotter
 from .summary import SummaryGenerator
 from .model_comp import ModelComparator
@@ -33,7 +33,7 @@ from . import utils
 # Define what gets imported with "from lightenplot import *"
 __all__ = [
     # Main classes
-    'LightenPlot', # Class name updated
+    'LightenPlot',
     'VisualizationBase',
     'DiagnosticPlotter',
     'SummaryGenerator',
