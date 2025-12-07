@@ -57,6 +57,19 @@ class LightenPlot(VisualizationBase):
         self._comparator = ModelComparator(models_results)
         self._comparator.compare_models()
 
+    def plot(self):
+        """Implementation for abstract method 'plot' to resolve TypeError."""
+        # You can delegate this to your primary plotting method (like render)
+        print("[LightenPlot] Executing plot() -> Delegating to render().")
+        return self.render()
+    
+    def render(self):
+        """Implementation for abstract method 'render' (used in demo)."""
+        print("[LightenPlot] Executing render() -> Running default visualization.")
+        # Add your actual logic here, for example:
+        # self.autoplot(target='mpg') 
+        pass
+    
     # --- Dunder Methods ---
     def __repr__(self) -> str:
         """Returns the official string representation."""
