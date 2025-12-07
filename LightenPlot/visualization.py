@@ -83,7 +83,7 @@ class VisualizationBase(ABC):
         sns.set_palette(value)
     
     @abstractmethod
-    def plot(self, *args, **kwargs) -> plt.Figure:
+    def plot(self):
         """
         Abstract method to create a plot.
         
@@ -93,7 +93,12 @@ class VisualizationBase(ABC):
             matplotlib.figure.Figure: The created figure
         """
         pass
-    
+
+    @abstractmethod
+    def render(self):
+        """Abstract method used in the demo sscript for Polymorphism"""
+        pass
+
     def save_plot(self, filename: str, dpi: int = 300, 
                   bbox_inches: str = 'tight') -> None:
         """

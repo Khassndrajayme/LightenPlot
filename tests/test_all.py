@@ -7,7 +7,11 @@ import pandas as pd
 import numpy as np
 
 from LightenPlot import (
+<<<<<<< HEAD
     LightenPlot, 
+=======
+    PlotEase, 
+>>>>>>> 55678793c86d4717dbf0b503e174704d98ef8bab
     DiagnosticPlotter, 
     SummaryGenerator, 
     ModelComparator, 

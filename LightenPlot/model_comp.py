@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Dict, List, Optional, Union
-from .visualization import VisualizationBase
+from visualization import VisualizationBase
 
 
 class ModelComparator(VisualizationBase):
@@ -24,16 +24,23 @@ class ModelComparator(VisualizationBase):
         models (dict): Dictionary of model names and their metrics
     """
     
-    def __init__(self, models: Optional[Dict[str, Dict]] = None, **kwargs):
-        """
-        Initialize ModelComparator.
-        
-        Args:
-            models: Dictionary with model names as keys and metric dicts as values
-            **kwargs: Additional arguments passed to VisualizationBase
-        """
-        super().__init__(**kwargs)
+    def __init__(self, models: Optional[Dict[str, Dict]] = None, theme: str = 'default', **kwargs):
+        # We need to manually handle 'data' since it's not passed explicitly in the demo script
+        super().__init__(data=pd.DataFrame(), theme=theme, **kwargs)
         self._models = models if models is not None else {}
+    
+    def render(self) -> None:
+        """
+        Render method - required by abstract base class.
+        Creates a default model comparison visualization.
+        """
+        print("Rendering ModelComparator...")
+        if self._models:
+            fig = self.plot()
+            plt.show()
+            return fig
+        else:
+            print("No models added yet. Use add_model() to add models.")
     
     def add_model(self, name: str, metrics: Dict[str, float]) -> None:
         """
@@ -44,6 +51,7 @@ class ModelComparator(VisualizationBase):
             metrics: Dictionary of metric names and values
         """
         self._models[name] = metrics
+        print(f"✓ Added model '{name}' with {len(metrics)} metrics")
     
     def remove_model(self, name: str) -> None:
         """
@@ -54,6 +62,7 @@ class ModelComparator(VisualizationBase):
         """
         if name in self._models:
             del self._models[name]
+            print(f"✓ Removed model '{name}'")
         else:
             print(f"Model '{name}' not found")
     
@@ -78,7 +87,7 @@ class ModelComparator(VisualizationBase):
             matplotlib.figure.Figure: The created figure
         """
         if not self._models:
-            fig, ax = plt.subplots(figsize=self._figsize)
+            fig, ax = plt.subplots(figsize=(10, 6))
             ax.text(0.5, 0.5, 'No models to compare. Use add_model() first.', 
                    ha='center', va='center', fontsize=14)
             ax.axis('off')
@@ -91,7 +100,7 @@ class ModelComparator(VisualizationBase):
     
     def _plot_single_metric(self, metric: str) -> plt.Figure:
         """Plot a single metric across all models."""
-        fig, ax = plt.subplots(figsize=self._figsize)
+        fig, ax = plt.subplots(figsize=(10, 6))
         
         model_names = []
         values = []
@@ -135,7 +144,7 @@ class ModelComparator(VisualizationBase):
         all_metrics = sorted(list(all_metrics))
         
         if not all_metrics:
-            fig, ax = plt.subplots(figsize=self._figsize)
+            fig, ax = plt.subplots(figsize=(10, 6))
             ax.text(0.5, 0.5, 'No metrics found',
                    ha='center', va='center', fontsize=12)
             ax.axis('off')
@@ -152,7 +161,7 @@ class ModelComparator(VisualizationBase):
         
         df = pd.DataFrame(data, index=self._models.keys(), columns=all_metrics)
         
-        fig, ax = plt.subplots(figsize=self._figsize)
+        fig, ax = plt.subplots(figsize=(12, max(6, len(self._models) * 0.8)))
         sns.heatmap(df, annot=True, fmt='.4f', cmap='RdYlGn', 
                    ax=ax, cbar_kws={'label': 'Value'}, linewidths=0.5)
         ax.set_title('Model Performance Comparison', fontsize=14, fontweight='bold')
@@ -175,7 +184,7 @@ class ModelComparator(VisualizationBase):
             matplotlib.figure.Figure: The created figure
         """
         if not self._models:
-            fig, ax = plt.subplots(figsize=self._figsize)
+            fig, ax = plt.subplots(figsize=(10, 8))
             ax.text(0.5, 0.5, 'No models to compare', 
                    ha='center', va='center', fontsize=14)
             ax.axis('off')
@@ -195,7 +204,7 @@ class ModelComparator(VisualizationBase):
         angles = np.linspace(0, 2 * np.pi, num_metrics, endpoint=False).tolist()
         angles += angles[:1]  # Complete the circle
         
-        fig, ax = plt.subplots(figsize=self._figsize, subplot_kw=dict(projection='polar'))
+        fig, ax = plt.subplots(figsize=(10, 8), subplot_kw=dict(projection='polar'))
         
         colors = plt.cm.tab10(np.linspace(0, 1, len(model_names)))
         
@@ -226,124 +235,6 @@ class ModelComparator(VisualizationBase):
         plt.tight_layout()
         return fig
     
-    def compare_predictions(self, y_true: Union[list, np.ndarray], 
-                           predictions: Dict[str, Union[list, np.ndarray]]) -> plt.Figure:
-        """
-        Compare model predictions against true values.
-        
-        Args:
-            y_true: True labels
-            predictions: Dictionary of model names and their predictions
-            
-        Returns:
-            matplotlib.figure.Figure: The created figure
-        """
-        n_models = len(predictions)
-        
-        if n_models == 0:
-            fig, ax = plt.subplots(figsize=self._figsize)
-            ax.text(0.5, 0.5, 'No predictions to compare', 
-                   ha='center', va='center', fontsize=14)
-            ax.axis('off')
-            return fig
-        
-        # Calculate subplot layout
-        n_cols = min(3, n_models)
-        n_rows = (n_models + n_cols - 1) // n_cols
-        
-        fig, axes = plt.subplots(n_rows, n_cols, figsize=(6*n_cols, 5*n_rows))
-        
-        if n_models == 1:
-            axes = np.array([axes])
-        axes = axes.flatten()
-        
-        for idx, (model_name, y_pred) in enumerate(predictions.items()):
-            ax = axes[idx]
-            
-            # Scatter plot of predictions vs true values
-            ax.scatter(y_true, y_pred, alpha=0.5, s=30)
-            
-            # Perfect prediction line
-            min_val = min(min(y_true), min(y_pred))
-            max_val = max(max(y_true), max(y_pred))
-            ax.plot([min_val, max_val], [min_val, max_val], 
-                   'r--', linewidth=2, label='Perfect Prediction')
-            
-            # Calculate R²
-            ss_res = np.sum((np.array(y_true) - np.array(y_pred)) ** 2)
-            ss_tot = np.sum((np.array(y_true) - np.mean(y_true)) ** 2)
-            r2 = 1 - (ss_res / ss_tot)
-            
-            ax.set_xlabel('True Values', fontweight='bold')
-            ax.set_ylabel('Predictions', fontweight='bold')
-            ax.set_title(f'{model_name}\nR² = {r2:.4f}', fontweight='bold')
-            ax.legend()
-            ax.grid(alpha=0.3)
-        
-        # Hide unused subplots
-        for idx in range(n_models, len(axes)):
-            axes[idx].axis('off')
-        
-        plt.suptitle('Model Predictions Comparison', fontsize=16, fontweight='bold')
-        plt.tight_layout()
-        return fig
-    
-    def metric_distribution(self, metric: str) -> plt.Figure:
-        """
-        Show distribution of a specific metric across models.
-        
-        Args:
-            metric: Metric name to analyze
-            
-        Returns:
-            matplotlib.figure.Figure: The created figure
-        """
-        values = []
-        model_names = []
-        
-        for name, metrics in self._models.items():
-            if metric in metrics:
-                values.append(metrics[metric])
-                model_names.append(name)
-        
-        if not values:
-            fig, ax = plt.subplots(figsize=self._figsize)
-            ax.text(0.5, 0.5, f'Metric "{metric}" not found', 
-                   ha='center', va='center', fontsize=14)
-            ax.axis('off')
-            return fig
-        
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-        
-        # Box plot
-        ax1.boxplot(values, vert=True, patch_artist=True,
-                   boxprops=dict(facecolor='lightblue'))
-        ax1.set_ylabel(metric.capitalize(), fontweight='bold')
-        ax1.set_title(f'{metric.capitalize()} Distribution', fontweight='bold')
-        ax1.grid(alpha=0.3, axis='y')
-        
-        # Add individual points
-        x = np.ones(len(values))
-        ax1.scatter(x, values, alpha=0.6, s=100, c='red', zorder=3)
-        
-        # Statistics text
-        stats_text = f"""
-        Mean: {np.mean(values):.4f}
-        Median: {np.median(values):.4f}
-        Std: {np.std(values):.4f}
-        Min: {np.min(values):.4f}
-        Max: {np.max(values):.4f}
-        """
-        ax2.text(0.5, 0.5, stats_text, ha='center', va='center',
-                fontsize=12, family='monospace',
-                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-        ax2.axis('off')
-        
-        plt.suptitle(f'Metric Analysis: {metric.capitalize()}', 
-                    fontsize=14, fontweight='bold')
-        plt.tight_layout()
-        return fig
-    
     def ranking_plot(self, metric: str, ascending: bool = False) -> plt.Figure:
         """
         Create a ranking plot for models based on a specific metric.
@@ -361,7 +252,7 @@ class ModelComparator(VisualizationBase):
                 model_scores.append((name, metrics[metric]))
         
         if not model_scores:
-            fig, ax = plt.subplots(figsize=self._figsize)
+            fig, ax = plt.subplots(figsize=(10, 6))
             ax.text(0.5, 0.5, f'Metric "{metric}" not found', 
                    ha='center', va='center', fontsize=14)
             ax.axis('off')
@@ -373,7 +264,7 @@ class ModelComparator(VisualizationBase):
         names, scores = zip(*model_scores)
         ranks = range(1, len(names) + 1)
         
-        fig, ax = plt.subplots(figsize=self._figsize)
+        fig, ax = plt.subplots(figsize=(10, 6))
         
         colors = plt.cm.RdYlGn(np.linspace(0.2, 0.8, len(names)))
         if ascending:
@@ -408,3 +299,9 @@ class ModelComparator(VisualizationBase):
     def __contains__(self, model_name: str) -> bool:
         """Check if model exists."""
         return model_name in self._models
+    
+    def __gt__(self, other) -> bool:
+        """Compare based on number of models."""
+        if not isinstance(other, ModelComparator):
+            return NotImplemented
+        return len(self._models) > len(other._models)

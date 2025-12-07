@@ -25,23 +25,16 @@ class DiagnosticPlotter(VisualizationBase):
         data (pd.DataFrame): The data to analyze
     """
     
-    def __init__(self, data: pd.DataFrame, **kwargs):
-        """
-        Initialize DiagnosticPlotter with data.
-        
-        Args:
-            data: pandas DataFrame to create diagnostics for
-            **kwargs: Additional arguments passed to VisualizationBase
-        """
-        super().__init__(**kwargs)
-        if not isinstance(data, pd.DataFrame):
-            raise TypeError("data must be a pandas DataFrame")
-        self._data = data
+    def __init__(self, data: pd.DataFrame, theme: str = 'default', **kwargs):
+        super().__init__(data=data, theme=theme, **kwargs)
     
-    @property
-    def data(self) -> pd.DataFrame:
-        """Get the underlying data."""
-        return self._data
+    def render(self) -> None:
+        """
+        Render method - required by abstract base class.
+        Creates a default diagnostic visualization.
+        """
+        print("Rendering DiagnosticPlotter visualization...")
+        self.plot()
     
     def plot(self, columns: Optional[List[str]] = None) -> plt.Figure:
         """
@@ -57,7 +50,7 @@ class DiagnosticPlotter(VisualizationBase):
             columns = self._data.select_dtypes(include=[np.number]).columns.tolist()
         
         if len(columns) == 0:
-            fig, ax = plt.subplots(figsize=self._figsize)
+            fig, ax = plt.subplots(figsize=(10, 6))
             ax.text(0.5, 0.5, 'No numeric columns found to plot', 
                    ha='center', va='center', fontsize=14)
             ax.axis('off')
@@ -100,7 +93,7 @@ class DiagnosticPlotter(VisualizationBase):
         Returns:
             matplotlib.figure.Figure: The created figure
         """
-        fig, ax = plt.subplots(figsize=self._figsize)
+        fig, ax = plt.subplots(figsize=(10, 6))
         
         missing = self._data.isnull().sum()
         missing = missing[missing > 0].sort_values(ascending=False)
@@ -200,7 +193,7 @@ class DiagnosticPlotter(VisualizationBase):
         Returns:
             matplotlib.figure.Figure: The created figure
         """
-        fig, ax = plt.subplots(figsize=self._figsize)
+        fig, ax = plt.subplots(figsize=(10, 6))
         
         for col in columns:
             if col in self._data.columns:
@@ -213,74 +206,6 @@ class DiagnosticPlotter(VisualizationBase):
         ax.legend(loc='best')
         ax.grid(alpha=0.3)
         
-        plt.tight_layout()
-        return fig
-    
-    def normality_test(self, columns: Optional[List[str]] = None) -> plt.Figure:
-        """
-        Test and visualize normality of columns.
-        
-        Args:
-            columns: List of columns to test (None for all numeric)
-            
-        Returns:
-            matplotlib.figure.Figure: The created figure
-        """
-        if columns is None:
-            columns = self._data.select_dtypes(include=[np.number]).columns.tolist()
-        
-        results = []
-        for col in columns:
-            data = self._data[col].dropna()
-            if len(data) > 3:
-                statistic, p_value = stats.shapiro(data)
-                is_normal = p_value > 0.05
-                results.append({
-                    'Column': col,
-                    'Statistic': statistic,
-                    'P-Value': p_value,
-                    'Normal': 'Yes' if is_normal else 'No'
-                })
-        
-        if not results:
-            fig, ax = plt.subplots(figsize=self._figsize)
-            ax.text(0.5, 0.5, 'No data to test', ha='center', va='center')
-            ax.axis('off')
-            return fig
-        
-        df_results = pd.DataFrame(results)
-        
-        fig, ax = plt.subplots(figsize=(10, len(results) * 0.5 + 2))
-        ax.axis('tight')
-        ax.axis('off')
-        
-        # Color cells based on normality
-        cell_colors = []
-        for _, row in df_results.iterrows():
-            row_colors = ['white'] * len(df_results.columns)
-            if row['Normal'] == 'Yes':
-                row_colors[-1] = '#90EE90'  # Light green
-            else:
-                row_colors[-1] = '#FFB6C6'  # Light red
-            cell_colors.append(row_colors)
-        
-        table = ax.table(cellText=df_results.values,
-                        colLabels=df_results.columns,
-                        cellLoc='center',
-                        loc='center',
-                        cellColours=cell_colors)
-        
-        table.auto_set_font_size(False)
-        table.set_fontsize(10)
-        table.scale(1, 2)
-        
-        # Style header
-        for i in range(len(df_results.columns)):
-            table[(0, i)].set_facecolor('#4472C4')
-            table[(0, i)].set_text_props(weight='bold', color='white')
-        
-        plt.title('Shapiro-Wilk Normality Test (α = 0.05)', 
-                 fontsize=14, fontweight='bold', pad=20)
         plt.tight_layout()
         return fig
     
