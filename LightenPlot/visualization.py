@@ -83,7 +83,7 @@ class VisualizationBase(ABC):
         sns.set_palette(value)
     
     @abstractmethod
-    def plot(self, *args, **kwargs) -> plt.Figure:
+    def plot(self):
         """
         Abstract method to create a plot.
         

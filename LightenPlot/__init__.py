@@ -19,6 +19,7 @@ __author__ = 'RichieClan'
 __email__ = 'your.email@example.com'
 __license__ = 'MIT'
 
+
 # Import main classes
 from .visualization import VisualizationBase
 from .LightenPlot import LightenPlot 

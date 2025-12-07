@@ -6,7 +6,7 @@ import unittest
 import pandas as pd
 import numpy as np
 
-from plotease import (
+from LightenPlot import (
     PlotEase, 
     DiagnosticPlotter, 
     SummaryGenerator, 
