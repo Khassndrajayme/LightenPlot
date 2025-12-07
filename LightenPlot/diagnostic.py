@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Optional, List
 from scipy import stats
-from .visualization_base import VisualizationBase
+from .visualization import VisualizationBase
 
 
 class DiagnosticPlotter(VisualizationBase):
