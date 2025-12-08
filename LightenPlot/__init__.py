@@ -1,75 +1,198 @@
 """
-LightenPlot: A simplified data visualization library for Python
+LightenPlot - Simplified Data Visualization
 
-LightenPlot makes data visualization easy and intuitive, reducing the complexity
-of matplotlib and ggplot while maintaining powerful features.
+A Python library that dramatically simplifies data visualization syntax
+while maintaining the power and flexibility of matplotlib and seaborn.
 
 Example:
-    >>> from lightenplot import LightenPlot 
-    >>> import pandas as pd
-    >>> 
-    >>> data = pd.read_csv('data.csv')
-    >>> pe = LightenPlot(data, theme='minimal') 
-    >>> pe.autoplot(target='price')
+    >>> import lightenplot as lp
+    >>> lp.scatter(data, x='age', y='salary').show()
+    
+Author: Your Team Name
+Version: 0.1.0
 """
 
-# Version information
-__version__ = '1.0.0'
-__author__ = 'RichieClan' 
-__email__ = 'your.email@example.com'
-__license__ = 'MIT'
+__version__ = '0.1.0'
+__author__ = 'Your Team Name'
 
-
-# Import main classes
-from .visualization import VisualizationBase
-from .LightenPlot import LightenPlot 
-from .diagnostic import DiagnosticPlotter
-from .summary import SummaryGenerator
-from .model_comp import ModelComparator
-from .quick_plotter import QuickPlotter
-
-# Import utilities
+# Import core classes
+from .core import BasePlot, PlotComposer
+from .plots import (
+    ScatterPlot,
+    LinePlot,
+    BarPlot,
+    HistogramPlot,
+    BoxPlot,
+    HeatmapPlot
+)
+from .themes import ThemeManager
+from .exporters import PlotExporter
 from . import utils
 
-# Define what gets imported with "from lightenplot import *"
+# Quick API functions for one-liner plotting
+def scatter(data=None, x=None, y=None, **kwargs):
+    """
+    Create a scatter plot in one line.
+    
+    Args:
+        data: DataFrame or dict
+        x: X-axis column name or data
+        y: Y-axis column name or data
+        **kwargs: Additional scatter plot parameters
+        
+    Returns:
+        ScatterPlot instance
+        
+    Example:
+        >>> lp.scatter(df, x='age', y='income', color='gender')
+    """
+    plot = ScatterPlot(data)
+    plot.create(x, y, **kwargs)
+    return plot
+
+
+def line(data=None, x=None, y=None, **kwargs):
+    """
+    Create a line plot in one line.
+    
+    Args:
+        data: DataFrame or dict
+        x: X-axis column name or data
+        y: Y-axis column name or data
+        **kwargs: Additional line plot parameters
+        
+    Returns:
+        LinePlot instance
+        
+    Example:
+        >>> lp.line(df, x='date', y='price')
+    """
+    plot = LinePlot(data)
+    plot.create(x, y, **kwargs)
+    return plot
+
+
+def bar(data=None, x=None, y=None, **kwargs):
+    """
+    Create a bar plot in one line.
+    
+    Args:
+        data: DataFrame or dict
+        x: X-axis categories
+        y: Y-axis values
+        **kwargs: Additional bar plot parameters
+        
+    Returns:
+        BarPlot instance
+        
+    Example:
+        >>> lp.bar(df, x='category', y='count')
+    """
+    plot = BarPlot(data)
+    plot.create(x, y, **kwargs)
+    return plot
+
+
+def histogram(data=None, column=None, **kwargs):
+    """
+    Create a histogram in one line.
+    
+    Args:
+        data: DataFrame or array
+        column: Column name (if DataFrame)
+        **kwargs: Additional histogram parameters
+        
+    Returns:
+        HistogramPlot instance
+        
+    Example:
+        >>> lp.histogram(df, column='age', bins=20)
+    """
+    plot = HistogramPlot(data)
+    plot.create(column=column, **kwargs)
+    return plot
+
+
+def boxplot(data=None, columns=None, **kwargs):
+    """
+    Create a box plot in one line.
+    
+    Args:
+        data: DataFrame or list of arrays
+        columns: List of column names (if DataFrame)
+        **kwargs: Additional box plot parameters
+        
+    Returns:
+        BoxPlot instance
+        
+    Example:
+        >>> lp.boxplot(df, columns=['A', 'B', 'C'])
+    """
+    plot = BoxPlot(data)
+    plot.create(columns=columns, **kwargs)
+    return plot
+
+
+def heatmap(data=None, **kwargs):
+    """
+    Create a heatmap in one line.
+    
+    Args:
+        data: 2D array or DataFrame
+        **kwargs: Additional heatmap parameters
+        
+    Returns:
+        HeatmapPlot instance
+        
+    Example:
+        >>> lp.heatmap(correlation_matrix)
+    """
+    plot = HeatmapPlot(data)
+    plot.create(**kwargs)
+    return plot
+
+
+def compose(rows=1, cols=1):
+    """
+    Create a plot composer for multiple subplots.
+    
+    Args:
+        rows: Number of subplot rows
+        cols: Number of subplot columns
+        
+    Returns:
+        PlotComposer instance
+        
+    Example:
+        >>> composer = lp.compose(2, 2)
+        >>> composer.add_plot(plot1).add_plot(plot2).show()
+    """
+    return PlotComposer(rows, cols)
+
+
+# Expose main classes and functions
 __all__ = [
-    # Main classes
-    'LightenPlot',
-    'VisualizationBase',
-    'DiagnosticPlotter',
-    'SummaryGenerator',
-    'ModelComparator',
-    'QuickPlotter',
+    # Classes
+    'BasePlot',
+    'ScatterPlot',
+    'LinePlot', 
+    'BarPlot',
+    'HistogramPlot',
+    'BoxPlot',
+    'HeatmapPlot',
+    'PlotComposer',
+    'ThemeManager',
+    'PlotExporter',
     
-    # Utilities module
-    'utils',
+    # Quick API functions
+    'scatter',
+    'line',
+    'bar',
+    'histogram',
+    'boxplot',
+    'heatmap',
+    'compose',
     
-    # Version info
-    '__version__',
+    # Utils
+    'utils'
 ]
-
-# Package metadata
-PACKAGE_INFO = {
-    'name': 'lightenplot', 
-    'version': __version__,
-    'description': 'A simplified data visualization library for Python',
-    'author': __author__,
-    'email': __email__,
-    'license': __license__,
-    'url': 'https://github.com/Khassndrajayme/lightenplot', 
-}
-
-
-def get_version():
-    """Return the current version of LightenPlot""" 
-    return __version__
-
-
-def print_info():
-    """Print package information"""
-    print(f"LightenPlot v{__version__}") # Output updated
-    print(f"Author: {__author__}")
-    print(f"License: {__license__}")
-    print(f"Documentation: https://lightenplot.readthedocs.io/") # Documentation link updated
- 
-# print(f"LightenPlot v{__version__} loaded successfully!") # Comment updated

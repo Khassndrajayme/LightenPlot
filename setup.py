@@ -1,77 +1,45 @@
-"""
-Setup configuration for LightenPlot package
-"""
+"""Setup configuration for LightenPlot package."""
 
 from setuptools import setup, find_packages
-import os
+import pathlib
 
-# Read the README file for long description
-def read_file(filename):
-    with open(os.path.join(os.path.dirname(__file__), filename), encoding='utf-8') as f:
-        return f.read()
+# Read README for long description
+HERE = pathlib.Path(__file__).parent
+# FIX: Added encoding='utf-8' to prevent UnicodeDecodeError on Windows
+README = (HERE / "README.md").read_text(encoding='utf-8') if (HERE / "README.md").exists() else "LightenPlot - Simplified Data Visualization"
 
-# Read requirements from requirements.txt
-def read_requirements():
-    with open('requirements.txt', encoding='utf-8') as f:
-        return [line.strip() for line in f if line.strip() and not line.startswith('#')]
+# Read requirements
+with open('requirements.txt', encoding='utf-8') as f: # Added encoding='utf-8' for robustness
+    requirements = f.read().splitlines()
 
 setup(
-    # Package metadata
-    name='lightenplot', 
-    version='1.0.0',
-    author='Your Team Name',
-    author_email='your.email@example.com',
-    description='A simplified data visualization library for Python',
-    long_description=read_file('README.md'),
+    name='lightenplot',
+    version='0.1.0',
+    author='Richieclan',
+    author_email='khassandrajayme@gmail.com',
+    description='A Python library that dramatically simplifies data visualization syntax',
+    long_description=README,
     long_description_content_type='text/markdown',
-    url='https://github.com/Khassndrajayme/lightenplot', 
-    
-    # Package configuration
-    packages=find_packages(exclude=['tests', 'docs', 'examples']),
-    python_requires='>=3.8',
-    
-    # Dependencies
-    install_requires=read_requirements(),
-    
-    # Package classifiers
+    url='https://github.com/khassndrajayme/lightenplot',
+    packages=find_packages(),
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Visualization',
-        'Topic :: Scientific/Engineering :: Information Analysis',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
-        'Operating System :: OS Independent',
     ],
-    
-    # Keywords for PyPI search
-    keywords='visualization plotting data-science matplotlib seaborn oop',
-    
-    # Project URLs
+    python_requires='>=3.8',
+    install_requires=requirements,
+    keywords='visualization plotting data-science matplotlib seaborn',
     project_urls={
-        'Bug Reports': 'https://github.com/Khassndrajayme/lightenplot/issues', 
-        'Source': 'https://github.com/Khassndrajayme/lightenplot', 
-        'Documentation': 'https://lightenplot.readthedocs.io/', 
+        'Bug Reports': 'https://github.com/khassndrajayme/lightenplot/issues',
+        'Source': 'https://github.com/khassndrajayme/lightenplot',
+        'Documentation': 'https://github.com/khassndrajayme/lightenplot/blob/main/README.md',
     },
-    
-    # Include additional files
-    include_package_data=True,
-    package_data={
-        'lightenplot': ['data/*.csv'], 
-    },
-    
-    # Entry points (optional - for command-line tools)
-    # entry_points={
-    #     'console_scripts': [
-    #         'lightenplot=lightenplot.cli:main', # Commented change for completeness
-    #     ],
-    # },
-    
-    # Zip safe
-    zip_safe=False,
 )
