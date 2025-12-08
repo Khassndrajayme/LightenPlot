@@ -46,6 +46,7 @@ class PlotComposer:
             if idx < len(self.axes):
                 plot_obj.ax = self.axes[idx]
                 plot_obj.figure = self.figure
+                plot_obj.create(*plot_obj._create_args, **plot_obj._create_kwargs)
         plt.tight_layout()
         return self
     
