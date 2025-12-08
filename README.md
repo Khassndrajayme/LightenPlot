@@ -1,4 +1,4 @@
-# 🎨 LightenPlot
+# LightenPlot
 
 **Dramatically Simplify Data Visualization in Python**
 
