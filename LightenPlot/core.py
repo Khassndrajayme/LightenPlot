@@ -32,7 +32,9 @@ class BasePlot(ABC):
         self._theme = "default"
         self._xlabel = ""
         self._ylabel = ""
-    
+        self._create_args = ()
+        self._create_kwargs = {}
+
     @abstractmethod
     def create(self, *args, **kwargs):
         """Abstract method to create the plot. Must be implemented by subclasses."""
