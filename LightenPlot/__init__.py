@@ -9,12 +9,12 @@ Example:
     >>> import lightenplot as lp
     >>> lp.scatter(data, x='age', y='salary').show()
     
-Author: Your Team Name
+Author: RichieClan
 Version: 0.1.0
 """
 
 __version__ = '0.1.0'
-__author__ = 'Your Team Name'
+__author__ = 'RichieClan'
 
 # Import core classes
 from .core import BasePlot, PlotComposer
