@@ -1,4 +1,3 @@
-# lightenplot/core.py
 """Core base classes for LightenPlot library."""
 
 from abc import ABC, abstractmethod

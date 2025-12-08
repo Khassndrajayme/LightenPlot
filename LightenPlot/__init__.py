@@ -1,3 +1,4 @@
+# lightenplot/__init__.py
 """
 LightenPlot - Simplified Data Visualization
 
@@ -8,7 +9,7 @@ Example:
     >>> import lightenplot as lp
     >>> lp.scatter(data, x='age', y='salary').show()
     
-Author: RichieClan
+Author: Your Team Name
 Version: 0.1.0
 """
 

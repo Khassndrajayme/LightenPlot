@@ -1,29 +1,12 @@
+# tests/test_plots.py
 """Unit tests for LightenPlot."""
-
-import matplotlib
-matplotlib.use('Agg')  
 
 import unittest
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt  
-
-<<<<<<< HEAD
 from lightenplot import (
     ScatterPlot, LinePlot, BarPlot, HistogramPlot,
     BoxPlot, HeatmapPlot, PlotComposer, ThemeManager
-=======
-from LightenPlot import (
-<<<<<<< HEAD
-    LightenPlot, 
-=======
-    PlotEase, 
->>>>>>> 55678793c86d4717dbf0b503e174704d98ef8bab
-    DiagnosticPlotter, 
-    SummaryGenerator, 
-    ModelComparator, 
-    QuickPlotter
->>>>>>> eca2da73c6d6445bc8a5eec2c329a0afcf92bfb1
 )
 
 
@@ -36,10 +19,6 @@ class TestBasePlot(unittest.TestCase):
             'x': [1, 2, 3, 4, 5],
             'y': [2, 4, 6, 8, 10]
         })
-    
-    def tearDown(self):  # ← ADD THIS
-        """Close all figures after each test."""
-        plt.close('all')
     
     def test_scatter_creation(self):
         """Test scatter plot creation."""
@@ -71,10 +50,6 @@ class TestBasePlot(unittest.TestCase):
 class TestHistogram(unittest.TestCase):
     """Test histogram functionality."""
     
-    def tearDown(self):  # ← ADD THIS
-        """Close all figures after each test."""
-        plt.close('all')
-    
     def test_histogram_with_array(self):
         """Test histogram with numpy array."""
         data = np.random.randn(100)
@@ -93,10 +68,6 @@ class TestHistogram(unittest.TestCase):
 class TestBoxPlot(unittest.TestCase):
     """Test box plot functionality."""
     
-    def tearDown(self):  # ← ADD THIS
-        """Close all figures after each test."""
-        plt.close('all')
-    
     def test_boxplot_multiple_columns(self):
         """Test box plot with multiple columns."""
         df = pd.DataFrame({
@@ -111,10 +82,6 @@ class TestBoxPlot(unittest.TestCase):
 
 class TestHeatmap(unittest.TestCase):
     """Test heatmap functionality."""
-    
-    def tearDown(self):  # ← ADD THIS
-        """Close all figures after each test."""
-        plt.close('all')
     
     def test_heatmap_creation(self):
         """Test heatmap with correlation matrix."""
@@ -131,10 +98,6 @@ class TestPlotComposer(unittest.TestCase):
     def setUp(self):
         """Set up test data."""
         self.data = pd.DataFrame({'x': [1, 2, 3], 'y': [4, 5, 6]})
-    
-    def tearDown(self):  # ← ADD THIS
-        """Close all figures after each test."""
-        plt.close('all')
     
     def test_composer_creation(self):
         """Test composer initialization."""
@@ -165,10 +128,6 @@ class TestPlotComposer(unittest.TestCase):
 
 class TestThemes(unittest.TestCase):
     """Test theme management."""
-    
-    def tearDown(self):  # ← ADD THIS
-        """Close all figures after each test."""
-        plt.close('all')
     
     def test_list_themes(self):
         """Test listing available themes."""
@@ -203,10 +162,6 @@ class TestDunderMethods(unittest.TestCase):
         """Set up test data."""
         self.data = pd.DataFrame({'x': [1, 2, 3], 'y': [4, 5, 6]})
     
-    def tearDown(self): 
-        """Close all figures after each test."""
-        plt.close('all')
-    
     def test_repr(self):
         """Test __repr__ method."""
         plot = ScatterPlot(self.data)
@@ -238,10 +193,6 @@ class TestDunderMethods(unittest.TestCase):
 
 class TestDataValidation(unittest.TestCase):
     """Test data validation."""
-    
-    def tearDown(self):  
-        """Close all figures after each test."""
-        plt.close('all')
     
     def test_dataframe_input(self):
         """Test DataFrame input."""

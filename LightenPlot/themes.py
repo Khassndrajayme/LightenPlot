@@ -1,3 +1,4 @@
+# lightenplot/themes.py
 """Theme management for LightenPlot."""
 
 import matplotlib.pyplot as plt
