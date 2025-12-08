@@ -1,346 +1,298 @@
-# PlotEase
+# 🎨 LightenPlot
 
-**Simplify data visualization with elegant, one-line commands.**
+**Dramatically Simplify Data Visualization in Python**
 
-PlotEase is a Python library designed to dramatically reduce syntax complexity compared to matplotlib, seaborn, and ggplot. Built with Object-Oriented Programming principles, PlotEase makes data visualization accessible and intuitive while maintaining the power and flexibility you need.
+LightenPlot is a Python library that reduces complex visualization code into single-line commands, while maintaining the power and flexibility of matplotlib and seaborn.
 
-[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![PyPI](https://img.shields.io/badge/pypi-lightenplot-orange.svg)](https://pypi.org/project/lightenplot/)
 
-![PlotEase UML Class Diagram](PlotEase_UMLDiagram/PlotEase_UMLDiagram.png)
+# **Table of Contents**
 
----
-
-## 📑 Table of Contents
-
-- [Why PlotEase?](#why-plotease)
-- [Features](#features)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Usage Examples](#usage-examples)
-- [Themes](#themes)
-- [Testing](#testing)
-- [Documentation](#documentation)
-- [Troubleshooting](#troubleshooting)
-- [Contributors](#contributors)
-- [License](#license)
-
----
-
-## Why PlotEase?
-
-Traditional plotting libraries require extensive code for simple visualizations. PlotEase changes that.
-
-### Traditional Approach (matplotlib/seaborn)
-```python
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# 10+ lines for a simple scatter plot
-fig, ax = plt.subplots(figsize=(10, 6))
-sns.scatterplot(data=df, x='age', y='salary', ax=ax, color='blue')
-ax.set_title('Age vs Salary', fontsize=14)
-ax.set_xlabel('Age', fontsize=12)
-ax.set_ylabel('Salary', fontsize=12)
-plt.grid(alpha=0.3)
-plt.tight_layout()
-plt.show()
-```
-
-### PlotEase Approach
-```python
-from plotease import PlotEase
-pe = PlotEase(data)
-
-# Just 1 line!
-pe.quick_plot('age', 'salary', color='blue', title='Age vs Salary')
-```
-
-**Result: 90% less code, same beautiful visualizations.**
+* [ Features](#-features)
+* [ Installation](#-installation)
+* [ Quick Start](#-quick-start)
+* [ Examples](#-examples)
+* [ Plot Composition](#-plot-composition)
+* [ Themes](#-themes)
+* [ Exporting Plots](#-exporting-plots)
+* [ Architecture Overview](#-architecture-overview)
+* [ API Reference](#-api-reference)
+* [ Testing](#-testing)
+* [ Documentation](#-documentation)
+* [ Contributing](#-contributing)
+* [ RichieClan Team](#-richieclan-team)
+* [ License](#-license)
+* [ Contact](#-contact)
 
 
 ## Features
 
-### **AutoPlot Diagnostics**
-Automatically generate comprehensive diagnostic plots based on your data types:
-- Distribution plots for numeric variables
-- Correlation heatmaps
-- Missing value analysis
-- Outlier detection with boxplots
-- Target variable analysis
-
-### **Tabular Summary**
-Generate detailed statistical summaries with a single command:
-- Comprehensive statistics for numeric columns
-- Category analysis for categorical data
-- Missing value reports
-- Export to CSV/Excel
-
-### **Model Comparison**
-Visualize machine learning model performance:
-- Grouped bar charts comparing metrics
-- Radar charts showing model profiles
-- Best model identification
-- Side-by-side performance comparison
-
-### **Quick Plotting**
-Create beautiful plots with minimal syntax:
-- Automatic plot type detection
-- Scatter, line, bar, histogram, and box plots
-- Custom styling and themes
-- One-line plot generation
+1. **One-Line Plotting**: Create beautiful visualizations with single commands
+2. **Method Chaining**: Fluent API for intuitive plot customization
+3. **Built-in Themes**: Multiple professional themes (default, dark, minimal, colorful)
+4. **Comprehensive Plot Types**: Scatter, line, bar, histogram, box, heatmap
+5. **Smart Composition**: Easily combine multiple plots
+6. **Easy Export**: Save in multiple formats (PNG, PDF, SVG)
+7. **Full OOP Design**: Encapsulation, inheritance, polymorphism
 
 ## Installation
 
-### From PyPI
 ```bash
-pip install plotease
+pip install lightenplot
 ```
 
 ### From Source
+
 ```bash
-git clone https://github.com/Khassndrajayme/PlotEase.git
-cd PlotEase
+git clone https://github.com/khassndrajayme/lightenplot.git
+cd lightenplot
 pip install -e .
 ```
 
-### Verify Installation
-```bash
-python -c "from plotease import PlotEase; print('PlotEase installed successfully!')"
-```
-
-### Requirements
-- Python 3.8+
-- pandas >= 1.3.0
-- numpy >= 1.21.0
-- matplotlib >= 3.4.0
-- seaborn >= 0.11.0
-- scipy >= 1.7.0
-
-
 ## Quick Start
 
-### Basic Usage
+### Traditional Way (10+ lines)
 
 ```python
+import matplotlib.pyplot as plt
 import pandas as pd
-from plotease import PlotEase
 
-# Load your data
-data = pd.read_csv('your_data.csv')
-
-# Initialize PlotEase
-pe = PlotEase(data, theme='minimal')
-
-# That's it! You're ready to visualize
+data = pd.DataFrame({'x': [1, 2, 3, 4], 'y': [2, 4, 6, 8]})
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.scatter(data['x'], data['y'], alpha=0.6)
+ax.set_xlabel('X Values')
+ax.set_ylabel('Y Values')
+ax.set_title('My Scatter Plot')
+ax.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
 ```
 
-## Usage Examples
-
-### 1. AutoPlot Diagnostics
-
-Generate comprehensive diagnostic plots automatically:
+### LightenPlot Way (1 line!)
 
 ```python
-# Analyze your entire dataset with one command
-pe.autoplot()
+import lightenplot as lp
 
-# Focus on specific target variable
-pe.autoplot(target='sales')
+lp.scatter(data, x='x', y='y').set_title('My Scatter Plot').show()
 ```
 
-This automatically creates:
-- Distribution plots for all numeric variables
-- Correlation heatmap
-- Missing value visualization
-- Outlier detection plots
+## Examples
 
-### 2. Tabular Summary
+### Scatter Plot
 
 ```python
-# Full summary (numeric + categorical)
-summary = pe.tabular_summary(style='full')
+import lightenplot as lp
+import pandas as pd
 
-# Only numeric columns
-numeric_summary = pe.tabular_summary(style='numeric')
+data = pd.DataFrame({
+    'age': [25, 30, 35, 40, 45],
+    'salary': [50000, 60000, 75000, 80000, 95000]
+})
 
-# Only categorical columns
-cat_summary = pe.tabular_summary(style='categorical')
-
-# Export to file
-pe.tabular_summary(style='full', export_to='summary.csv')
+lp.scatter(data, x='age', y='salary', color='steelblue') \
+  .set_title('Age vs Salary') \
+  .set_labels('Age (years)', 'Salary ($)') \
+  .apply_theme('minimal') \
+  .save('plot.png') \
+  .show()
 ```
 
-**Output includes:**
-- Count, Missing values, Mean, Std, Min, Max
-- Unique values, Top category, Frequency
-- Memory usage statistics
-
-### 3. Model Comparison
+### Line Plot
 
 ```python
-models_results = {
-    'Linear Regression': {
-        'Accuracy': 0.85, 
-        'Precision': 0.82, 
-        'Recall': 0.84,
-        'F1-Score': 0.83
-    },
-    'Random Forest': {
-        'Accuracy': 0.92, 
-        'Precision': 0.90, 
-        'Recall': 0.91,
-        'F1-Score': 0.90
-    },
-    'XGBoost': {
-        'Accuracy': 0.94, 
-        'Precision': 0.93, 
-        'Recall': 0.94,
-        'F1-Score': 0.93
-    }
-}
-
-# Compare all metrics
-pe.compare_models(models_results)
-
-# Compare specific metrics only
-pe.compare_models(models_results, metrics=['Accuracy', 'F1-Score'])
+lp.line(data, x='month', y='revenue', color='#FF6B6B', linewidth=2.5) \
+  .set_title('Monthly Revenue') \
+  .apply_theme('dark') \
+  .show()
 ```
 
-### 4. Quick Plotting
+### Bar Plot
 
 ```python
-# Automatic plot type detection
-pe.quick_plot('age', 'salary')  # Auto-detects scatter plot
-
-# Specific plot types
-pe.quick_plot('age', 'salary', kind='scatter', color='blue')
-pe.quick_plot('category', kind='bar', color='green')
-pe.quick_plot('values', kind='hist', color='orange')
-pe.quick_plot('var1', 'var2', kind='line', color='red')
-
-# Custom styling
-pe.quick_plot('x', 'y', kind='scatter', 
-              color='coral', 
-              title='My Custom Title',
-              figsize=(12, 6))
+lp.bar(data, x='category', y='value', color='#4ECDC4') \
+  .set_title('Sales by Category') \
+  .show()
 ```
 
-### 5. Custom Styling
+### Histogram
 
 ```python
-# Apply custom style globally
-custom_style = {
-    'font_size': 14,
-    'figure_facecolor': '#f9f9f9',
-    'axes_facecolor': 'white',
-    'grid_alpha': 0.3
-}
-pe.set_style(custom_style)
+import numpy as np
 
-# All subsequent plots will use this style
-pe.quick_plot('x', 'y')
+ages = np.random.normal(35, 10, 1000)
+lp.histogram(ages, bins=30, color='skyblue') \
+  .set_title('Age Distribution') \
+  .show()
+```
+
+### Box Plot
+
+```python
+lp.boxplot(data, columns=['Group_A', 'Group_B', 'Group_C']) \
+  .set_title('Performance Comparison') \
+  .show()
+```
+
+### Heatmap
+
+```python
+correlation_matrix = data.corr()
+lp.heatmap(correlation_matrix, cmap='coolwarm', annot=True) \
+  .set_title('Correlation Matrix') \
+  .show()
+```
+
+### Plot Composition
+
+```python
+# Create individual plots
+plot1 = lp.scatter(data, x='x', y='y')
+plot2 = lp.line(data, x='date', y='value')
+plot3 = lp.bar(data, x='cat', y='count')
+plot4 = lp.histogram(values, bins=20)
+
+# Compose into 2x2 grid
+composer = lp.compose(rows=2, cols=2)
+composer.add_plot(plot1).add_plot(plot2).add_plot(plot3).add_plot(plot4)
+composer.show()
 ```
 
 ## Themes
 
-PlotEase comes with 4 built-in themes:
+LightenPlot includes 4 built-in themes:
+
+- `default`: Clean, professional look
+- `dark`: Dark mode with high contrast
+- `minimal`: Minimalist design with no spines
+- `colorful`: Vibrant, eye-catching colors
 
 ```python
-# Available themes
-pe = PlotEase(data, theme='default')    # Classic scientific
-pe = PlotEase(data, theme='minimal')    # Clean and simple
-pe = PlotEase(data, theme='dark')       # Dark mode
-pe = PlotEase(data, theme='colorful')   # Vibrant colors
+# Apply theme
+plot.apply_theme('dark')
 
-# Change theme after initialization
-pe.set_theme('dark')
+# List available themes
+print(lp.ThemeManager.list_themes())
 ```
 
+## Exporting Plots
+
+```python
+# Single format
+plot.save('output.png', dpi=300)
+
+# Multiple formats
+from lightenplot import PlotExporter
+exporter = PlotExporter(plot.figure)
+exporter.save_multiple('output', formats=['png', 'pdf', 'svg'])
+```
+
+## Architecture
+
+LightenPlot is built with solid OOP principles:
+
+### Core Classes
+
+1. **BasePlot**: Abstract base class for all plots
+2. **ScatterPlot, LinePlot, BarPlot, etc.**: Specific plot implementations
+3. **PlotComposer**: Compose multiple plots (composition pattern)
+4. **ThemeManager**: Manage and apply themes (singleton pattern)
+5. **PlotExporter**: Handle plot exports
+
+### OOP Features Demonstrated
+
+1. **Encapsulation**: Private attributes (`_data`, `_theme`)  
+2. **Inheritance**: All plots inherit from `BasePlot`  
+3. **Polymorphism**: Theme classes with common interface  
+4. **Composition**: `PlotComposer` contains `BasePlot` instances  
+5. **Dunder Methods**: `__repr__`, `__str__`, `__eq__`, `__lt__`
+
+## API Reference
+
+### Quick Functions
+
+| Function | Description |
+|----------|-------------|
+| `scatter()` | Create scatter plot |
+| `line()` | Create line plot |
+| `bar()` | Create bar plot |
+| `histogram()` | Create histogram |
+| `boxplot()` | Create box plot |
+| `heatmap()` | Create heatmap |
+| `compose()` | Create plot composer |
+
+### Common Methods
+
+| Method | Description |
+|--------|-------------|
+| `.set_title(title)` | Set plot title |
+| `.set_labels(x, y)` | Set axis labels |
+| `.apply_theme(name)` | Apply theme |
+| `.save(filename)` | Save plot |
+| `.show()` | Display plot |
 
 ## Testing
 
-Run the test suite:
+Run unit tests:
 
 ```bash
-# Run all tests
-pytest tests/test_plotease.py -v
+# Simple run
+pytest tests/test_all.py
+
+# Verbose (shows test names)
+pytest tests/test_all.py -v
+
+# Show print statements
+pytest tests/test_all.py -v -s
+
+# Stop on first failure
+pytest tests/test_all.py -x
 
 # Run specific test class
-pytest tests/test_plotease.py::TestDunderMethods -v
+pytest tests/test_all.py::TestScatterPlot -v
 
-# Run with coverage
-pytest tests/test_plotease.py --cov=plotease --cov-report=html
+# Run specific test method
+pytest tests/test_all.py::TestScatterPlot::test_scatter_creation -v
+
+# With coverage
+pytest tests/test_all.py --cov=lightenplot --cov-report=term
+
+# Run all tests in tests/ folder
+pytest tests/
 ```
 
-Run the demo:
+Or with unittest:
 
 ```bash
-python demo.py
+python -m unittest discover tests/
 ```
-
----
 
 ## Documentation
 
-### Helper Functions
+Full documentation is available in the [docs](docs/) folder or can be generated using:
 
-PlotEase includes utility functions in `plotease.utils`:
+```bash
+# Using pdoc
+pip install pdoc
+pdoc --html lightenplot
 
-```python
-from plotease.utils import (
-    load_mtcars,                    # Load example dataset
-    validate_dataframe,             # Validate data
-    get_numeric_columns,            # Get numeric column names
-    get_categorical_columns,        # Get categorical column names
-    calculate_statistics,           # Comprehensive statistics
-    find_highly_correlated_pairs,   # Correlation analysis
-    detect_outliers_iqr,            # Outlier detection
-    export_summary_to_csv,          # Export to CSV
-    print_data_info                 # Print data information
-)
+# Using Sphinx
+cd docs/
+make html
 ```
 
-### Example: Using Utility Functions
+## Contributing
 
-```python
-from plotease.utils import load_mtcars, get_numeric_columns
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-# Load example dataset
-data = load_mtcars()
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-# Get numeric columns
-numeric_cols = get_numeric_columns(data)
-print(f"Numeric columns: {numeric_cols}")
-```
-
-## 🔧 Troubleshooting
-
-### Common Issues
-
-**Issue: `ModuleNotFoundError: No module named 'plotease'`**
-- **Solution:** Ensure you've installed the package: `pip install plotease`
-
-**Issue: Plots not displaying**
-- **Solution:** Make sure you're running in an environment that supports plotting (Jupyter, IDE with plot support)
-- Try adding `plt.show()` if in a script
-
-**Issue: `ValueError: DataFrame is empty`**
-- **Solution:** Verify your data is loaded correctly before creating PlotEase instance
-- Use `print(data.head())` to check
-
-**Issue: Import errors for dependencies**
-- **Solution:** Install missing dependencies: `pip install pandas numpy matplotlib seaborn scipy`
-
-**Issue: Theme not applying**
-- **Solution:** Set theme during initialization: `pe = PlotEase(data, theme='dark')`
-- Or use: `pe.set_theme('dark')`
-
-## Contributors
-
-This project was developed as part of an Object-Oriented Programming course.
-
-### Team Members
+## RichieClan Team
 
 - **Khassandra Louise C. Jayme** - Lead Developer - [GitHub](https://github.com/Khassndrajayme)
 - **Sheena Angela T. Janog** - Developer - [GitHub](https://github.com/Sheena06J)
@@ -348,22 +300,22 @@ This project was developed as part of an Object-Oriented Programming course.
 - **Allen Floro Ventura** - Developer - [GitHub](https://github.com/AllenKalbo)
 - **Genetyron Zamoranos** - Developer - [GitHub](https://github.com/noryt-py)
 
-### Acknowledgments
-
-- Thanks to our instructor for guidance and support
-- Inspired by matplotlib, seaborn, and ggplot2
-- mtcars dataset from R's datasets package
-
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Contributing
+## Acknowledgments
 
-We welcome contributions! Please feel free to:
-- Report bugs
-- Suggest new features
-- Submit pull requests
-- Improve documentation
+- Built on top of [Matplotlib](https://matplotlib.org/)
+- Inspired by [Seaborn](https://seaborn.pydata.org/)
+- Thanks to our instructor for guidance and support
+- Inspired by matplotlib, seaborn, and ggplot2
 
-**Made with ❤️ by the PlotEase Team**
+
+## Contact
+
+For questions or feedback, please open an issue on GitHub or contact us at khassandrajayme@gmail.com
+
+---
+
+**Made with Love by RichieClan**
