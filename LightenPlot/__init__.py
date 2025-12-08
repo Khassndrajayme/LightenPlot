@@ -17,7 +17,8 @@ __version__ = '0.1.0'
 __author__ = 'RichieClan'
 
 # Import core classes
-from .core import BasePlot, PlotComposer
+from .core import BasePlot
+from .composer import PlotComposer
 from .plots import (
     ScatterPlot,
     LinePlot,
