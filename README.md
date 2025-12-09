@@ -206,6 +206,8 @@ Lightenplot is built with solid OOP principles:
 4. **ThemeManager**: Manage and apply themes (singleton pattern)
 5. **PlotExporter**: Handle plot exports
 
+![LightenPlot UML Architecture](./UML_Diagram/LightenPlot_UML-Diagram.png)
+
 ### OOP Features Demonstrated
 
 1. **Encapsulation**: Private attributes (`_data`, `_theme`)  
