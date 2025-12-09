@@ -30,7 +30,7 @@ else:
 
 setup(
     name="LightenPlot",
-    version="0.2.5",
+    version="0.3.0",
     author="Group 5 - RichieClan",
     author_email="khassandrajayme@gmail.com",
     description="A lightweight Python library for easy data visualization with OOP principles",
