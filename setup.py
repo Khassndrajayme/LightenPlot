@@ -43,3 +43,4 @@ setup(
         'Documentation': 'https://github.com/khassndrajayme/lightenplot/blob/main/README.md',
     },
 )
+
