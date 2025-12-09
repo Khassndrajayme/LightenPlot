@@ -10,10 +10,10 @@ Example:
     >>> lp.scatter(data, x='age', y='salary').show()
     
 Author: RichieClan
-Version: 0.3.0
+Version: 0.4.0
 """
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 __author__ = 'RichieClan'
 
 # Import core classes
