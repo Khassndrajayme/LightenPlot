@@ -1,5 +1,5 @@
 # tests/test_plots.py
-"""Unit tests for LightenPlot."""
+"""Unit tests for lightenplot."""
 
 import unittest
 import numpy as np
