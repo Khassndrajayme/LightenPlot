@@ -1,10 +1,10 @@
 # tests/test_plots.py
-"""Unit tests for LightenPlot."""
+"""Unit tests for lightenplot."""
 
 import unittest
 import numpy as np
 import pandas as pd
-from LightenPlot import (
+from lightenplot import (
     ScatterPlot, LinePlot, BarPlot, HistogramPlot,
     BoxPlot, HeatmapPlot, PlotComposer, ThemeManager
 )

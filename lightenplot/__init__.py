@@ -1,6 +1,6 @@
 # lightenplot/__init__.py
 """
-LightenPlot - Simplified Data Visualization
+lightenplot - Simplified Data Visualization
 
 A Python library that dramatically simplifies data visualization syntax
 while maintaining the power and flexibility of matplotlib and seaborn.

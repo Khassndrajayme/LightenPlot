@@ -1,5 +1,5 @@
 # lightenplot/utils.py
-"""Utility functions for LightenPlot."""
+"""Utility functions for lightenplot."""
 
 import pandas as pd
 import numpy as np

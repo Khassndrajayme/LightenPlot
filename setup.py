@@ -29,7 +29,7 @@ else:
     ]
 
 setup(
-    name="LightenPlot",
+    name="lightenplot",
     version="0.3.0",
     author="Group 5 - RichieClan",
     author_email="khassandrajayme@gmail.com",

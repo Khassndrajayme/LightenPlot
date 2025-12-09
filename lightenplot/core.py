@@ -1,4 +1,4 @@
-"""Core base classes for LightenPlot library."""
+"""Core base classes for lightenplot library."""
 
 from abc import ABC, abstractmethod
 import matplotlib.pyplot as plt

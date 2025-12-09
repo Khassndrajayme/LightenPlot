@@ -1,12 +1,12 @@
-# LightenPlot
+# lightenplot
 
 **Dramatically Simplify Data Visualization in Python**
 
-LightenPlot is a Python library that reduces complex visualization code into single-line commands, while maintaining the power and flexibility of matplotlib and seaborn.
+Lightenplot is a Python library that reduces complex visualization code into single-line commands, while maintaining the power and flexibility of matplotlib and seaborn.
 
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![PyPI](https://img.shields.io/badge/pypi-LightenPlot-orange.svg)](https://pypi.org/project/LightenPlot/)
+[![PyPI](https://img.shields.io/badge/pypi-lightenplot-orange.svg)](https://pypi.org/project/lightenplot/)
 
 # **Table of Contents**
 
@@ -40,14 +40,14 @@ LightenPlot is a Python library that reduces complex visualization code into sin
 ## Installation
 
 ```bash
-pip install LightenPlot
+pip install lightenplot
 ```
 
 ### From Source
 
 ```bash
-git clone https://github.com/khassndrajayme/LightenPlot.git
-cd LightenPlot
+git clone https://github.com/khassndrajayme/lightenplot.git
+cd lightenplot
 pip install -r requirement.txt
 pip install -e .
 ```
@@ -74,16 +74,14 @@ plt.show()
 ### LightenPlot Way (1 line!)
 
 ```python
-import LightenPlot as lp
+import lightenplot as lp
 import pandas as pd
 
 data = pd.DataFrame({'x': [1, 2, 3], 'y': [4, 5, 6]})
 lp.scatter(data, x='x', y='y').set_title('My Scatter Plot').show()
 ```
 ### PyPI Package:
-https://pypi.org/project/LightenPlot/
-
-lightenplot
+https://pypi.org/project/lightenplot/
 
 
 ## Examples
@@ -91,7 +89,7 @@ lightenplot
 ### Scatter Plot
 
 ```python
-import LightenPlot as lp
+import lightenplot as lp
 import pandas as pd
 
 data = pd.DataFrame({
@@ -169,7 +167,7 @@ composer.show()
 
 ## Themes
 
-LightenPlot includes 4 built-in themes:
+Lightenplot includes 4 built-in themes:
 
 - `default`: Clean, professional look
 - `dark`: Dark mode with high contrast
@@ -191,14 +189,14 @@ print(lp.ThemeManager.list_themes())
 plot.save('output.png', dpi=300)
 
 # Multiple formats
-from LightenPlot import PlotExporter
+from lightenplot import PlotExporter
 exporter = PlotExporter(plot.figure)
 exporter.save_multiple('output', formats=['png', 'pdf', 'svg'])
 ```
 
 ## Architecture
 
-LightenPlot is built with solid OOP principles:
+Lightenplot is built with solid OOP principles:
 
 ### Core Classes
 
