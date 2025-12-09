@@ -1,42 +1,39 @@
-# lightenplot/errors.py
 """
-Error handling module for LightenPlot.
-
-Provides custom exceptions, validation utilities, and error handling decorators
-to improve user experience and debugging.
+Comprehensive error handling system for LightenPlot library.
+Provides custom exceptions, decorators, and validation utilities.
 """
 
 import functools
-import traceback
-from typing import Any, Callable, List, Optional, Union
 import pandas as pd
 import numpy as np
+from typing import Any, Callable, List, Optional
 
 
 # ============================================================================
-# Custom Exceptions
+# CUSTOM EXCEPTIONS
 # ============================================================================
 
 class LightenPlotError(Exception):
-    """Base exception for all LightenPlot errors."""
+    """Base exception class for all LightenPlot errors."""
     
     def __init__(self, message: str, suggestion: Optional[str] = None):
         """
-        Initialize LightenPlot error.
+        Initialize error with message and optional suggestion.
         
         Args:
-            message: Error message
-            suggestion: Optional suggestion for fixing the error
+            message: Error description
+            suggestion: Helpful suggestion to fix the error
         """
         self.message = message
         self.suggestion = suggestion
-        super().__init__(self._format_message())
+        super().__init__(self.format_message())
     
-    def _format_message(self) -> str:
+    def format_message(self) -> str:
         """Format error message with suggestion if available."""
+        msg = f"LightenPlot Error: {self.message}"
         if self.suggestion:
-            return f"{self.message}\n Suggestion: {self.suggestion}"
-        return self.message
+            msg += f"\nSuggestion: {self.suggestion}"
+        return msg
 
 
 class DataValidationError(LightenPlotError):
@@ -46,23 +43,12 @@ class DataValidationError(LightenPlotError):
 
 class ColumnNotFoundError(LightenPlotError):
     """Raised when specified column doesn't exist in DataFrame."""
-    
-    def __init__(self, column: str, available_columns: List[str]):
-        message = f"Column '{column}' not found in data"
-        available = ", ".join(f"'{col}'" for col in available_columns[:5])
-        if len(available_columns) > 5:
-            available += f", ... ({len(available_columns)} total)"
-        suggestion = f"Available columns: {available}"
-        super().__init__(message, suggestion)
+    pass
 
 
 class InvalidThemeError(LightenPlotError):
-    """Raised when an invalid theme is requested."""
-    
-    def __init__(self, theme_name: str, available_themes: List[str]):
-        message = f"Theme '{theme_name}' not found"
-        suggestion = f"Available themes: {', '.join(available_themes)}"
-        super().__init__(message, suggestion)
+    """Raised when an invalid theme is specified."""
+    pass
 
 
 class PlotCreationError(LightenPlotError):
@@ -76,302 +62,253 @@ class ExportError(LightenPlotError):
 
 
 class InvalidParameterError(LightenPlotError):
-    """Raised when invalid parameter is provided."""
+    """Raised when invalid parameters are provided."""
     pass
 
 
-class EmptyDataError(LightenPlotError):
-    """Raised when attempting to plot empty data."""
-    
-    def __init__(self):
-        message = "Cannot create plot with empty data"
-        suggestion = "Ensure your data contains at least one row/element"
-        super().__init__(message, suggestion)
-
-
-class IncompatibleDataError(LightenPlotError):
-    """Raised when data type is incompatible with plot type."""
-    
-    def __init__(self, plot_type: str, data_type: str, expected_type: str):
-        message = f"{plot_type} requires {expected_type} but got {data_type}"
-        suggestion = f"Convert your data to {expected_type} or use a different plot type"
-        super().__init__(message, suggestion)
-
-
-class DimensionMismatchError(LightenPlotError):
-    """Raised when data dimensions don't match expectations."""
-    
-    def __init__(self, expected: str, actual: str):
-        message = f"Data dimension mismatch: expected {expected}, got {actual}"
-        suggestion = "Check your data shape and ensure it matches the plot requirements"
-        super().__init__(message, suggestion)
-
-
 # ============================================================================
-# Validation Functions
+# DATA VALIDATOR CLASS
 # ============================================================================
 
-def validate_data_not_empty(data: Any) -> None:
+class DataValidator:
     """
-    Validate that data is not empty.
+    Static utility class for data validation.
+    Provides methods to validate common data requirements.
+    """
     
-    Args:
-        data: Data to validate
+    @staticmethod
+    def validate_dataframe(data: Any, name: str = "Data") -> None:
+        """
+        Validate that data is a non-empty DataFrame.
         
-    Raises:
-        EmptyDataError: If data is empty
-    """
-    if data is None:
-        raise EmptyDataError()
-    
-    if isinstance(data, pd.DataFrame):
-        if data.empty:
-            raise EmptyDataError()
-    elif isinstance(data, (list, np.ndarray)):
-        if len(data) == 0:
-            raise EmptyDataError()
-    elif hasattr(data, '__len__'):
-        if len(data) == 0:
-            raise EmptyDataError()
-
-
-def validate_column_exists(data: pd.DataFrame, column: Union[str, List[str]]) -> None:
-    """
-    Validate that column(s) exist in DataFrame.
-    
-    Args:
-        data: DataFrame to check
-        column: Column name or list of column names
-        
-    Raises:
-        DataValidationError: If data is not a DataFrame
-        ColumnNotFoundError: If column doesn't exist
-    """
-    if not isinstance(data, pd.DataFrame):
-        raise DataValidationError(
-            "Data must be a pandas DataFrame to use column names",
-            "Pass data as a DataFrame or use array indices instead"
-        )
-    
-    columns = [column] if isinstance(column, str) else column
-    
-    for col in columns:
-        if col not in data.columns:
-            raise ColumnNotFoundError(col, list(data.columns))
-
-
-def validate_numeric_column(data: pd.DataFrame, column: str) -> None:
-    """
-    Validate that column contains numeric data.
-    
-    Args:
-        data: DataFrame to check
-        column: Column name to validate
-        
-    Raises:
-        DataValidationError: If column is not numeric
-    """
-    validate_column_exists(data, column)
-    
-    if not pd.api.types.is_numeric_dtype(data[column]):
-        raise DataValidationError(
-            f"Column '{column}' must contain numeric data, got {data[column].dtype}",
-            "Convert column to numeric type or choose a different column"
-        )
-
-
-def validate_parameter_range(param_name: str, value: float, 
-                            min_val: Optional[float] = None,
-                            max_val: Optional[float] = None) -> None:
-    """
-    Validate that parameter is within acceptable range.
-    
-    Args:
-        param_name: Name of parameter
-        value: Parameter value
-        min_val: Minimum acceptable value
-        max_val: Maximum acceptable value
-        
-    Raises:
-        InvalidParameterError: If value is out of range
-    """
-    if min_val is not None and value < min_val:
-        raise InvalidParameterError(
-            f"{param_name} must be >= {min_val}, got {value}",
-            f"Set {param_name} to a value between {min_val} and {max_val or '∞'}"
-        )
-    
-    if max_val is not None and value > max_val:
-        raise InvalidParameterError(
-            f"{param_name} must be <= {max_val}, got {value}",
-            f"Set {param_name} to a value between {min_val or '-∞'} and {max_val}"
-        )
-
-
-def validate_parameter_type(param_name: str, value: Any, 
-                           expected_types: Union[type, tuple]) -> None:
-    """
-    Validate parameter type.
-    
-    Args:
-        param_name: Name of parameter
-        value: Parameter value
-        expected_types: Expected type or tuple of types
-        
-    Raises:
-        InvalidParameterError: If type doesn't match
-    """
-    if not isinstance(value, expected_types):
-        if isinstance(expected_types, tuple):
-            type_names = " or ".join(t.__name__ for t in expected_types)
-        else:
-            type_names = expected_types.__name__
-        
-        raise InvalidParameterError(
-            f"{param_name} must be {type_names}, got {type(value).__name__}",
-            f"Convert {param_name} to {type_names}"
-        )
-
-
-def validate_data_dimensions(data: Any, expected_dims: int) -> None:
-    """
-    Validate data dimensions.
-    
-    Args:
-        data: Data to validate
-        expected_dims: Expected number of dimensions (1 or 2)
-        
-    Raises:
-        DimensionMismatchError: If dimensions don't match
-    """
-    if isinstance(data, pd.DataFrame):
-        actual_dims = 2 if len(data.shape) == 2 and data.shape[1] > 1 else 1
-    elif isinstance(data, np.ndarray):
-        actual_dims = len(data.shape)
-    else:
-        actual_dims = 1
-    
-    if actual_dims != expected_dims:
-        raise DimensionMismatchError(
-            f"{expected_dims}D",
-            f"{actual_dims}D"
-        )
-
-
-def validate_color_format(color: Any) -> None:
-    """
-    Validate color parameter format.
-    
-    Args:
-        color: Color specification
-        
-    Raises:
-        InvalidParameterError: If color format is invalid
-    """
-    if color is None:
-        return
-    
-    if isinstance(color, str):
-        # Check if it's a valid matplotlib color name or hex code
-        if color.startswith('#') and len(color) not in [4, 7, 9]:
-            raise InvalidParameterError(
-                f"Invalid hex color: {color}",
-                "Use format #RGB, #RRGGBB, or #RRGGBBAA"
+        Args:
+            data: Data to validate
+            name: Name for error messages
+            
+        Raises:
+            DataValidationError: If validation fails
+        """
+        if not isinstance(data, pd.DataFrame):
+            raise DataValidationError(
+                f"{name} must be a pandas DataFrame, got {type(data).__name__}",
+                "Convert your data to DataFrame using pd.DataFrame(data)"
             )
-    elif not isinstance(color, (list, tuple, np.ndarray)):
-        raise InvalidParameterError(
-            f"Color must be string, list, or array, got {type(color).__name__}",
-            "Use color name (e.g., 'red'), hex code (e.g., '#FF0000'), or RGB tuple"
-        )
+        
+        if data.empty:
+            raise DataValidationError(
+                f"{name} is empty",
+                "Ensure your DataFrame contains data before plotting"
+            )
+    
+    @staticmethod
+    def validate_columns_exist(data: pd.DataFrame, columns: List[str]) -> None:
+        """
+        Validate that all specified columns exist in DataFrame.
+        
+        Args:
+            data: DataFrame to check
+            columns: List of column names to validate
+            
+        Raises:
+            ColumnNotFoundError: If any column is missing
+        """
+        if not isinstance(data, pd.DataFrame):
+            return  # Skip if not a DataFrame
+        
+        missing_cols = [col for col in columns if col not in data.columns]
+        
+        if missing_cols:
+            available = list(data.columns)
+            raise ColumnNotFoundError(
+                f"Column(s) not found: {missing_cols}",
+                f"Available columns: {available}"
+            )
+    
+    @staticmethod
+    def validate_numeric(data: pd.Series, name: str = "Data") -> None:
+        """
+        Validate that data is numeric.
+        
+        Args:
+            data: Series to validate
+            name: Name for error messages
+            
+        Raises:
+            DataValidationError: If data is not numeric
+        """
+        if not pd.api.types.is_numeric_dtype(data):
+            raise DataValidationError(
+                f"{name} must be numeric, got {data.dtype}",
+                "Convert to numeric using pd.to_numeric() or use appropriate data"
+            )
+    
+    @staticmethod
+    def validate_range(value: float, min_val: float, max_val: float, 
+                      name: str = "Value") -> None:
+        """
+        Validate that value is within specified range.
+        
+        Args:
+            value: Value to validate
+            min_val: Minimum allowed value
+            max_val: Maximum allowed value
+            name: Name for error messages
+            
+        Raises:
+            InvalidParameterError: If value is out of range
+        """
+        if not (min_val <= value <= max_val):
+            raise InvalidParameterError(
+                f"{name} must be between {min_val} and {max_val}, got {value}",
+                f"Use a value within the valid range [{min_val}, {max_val}]"
+            )
+    
+    @staticmethod
+    def validate_not_empty(data: Any, name: str = "Data") -> None:
+        """
+        Validate that data is not empty.
+        
+        Args:
+            data: Data to validate
+            name: Name for error messages
+            
+        Raises:
+            DataValidationError: If data is empty
+        """
+        try:
+            if len(data) == 0:
+                raise DataValidationError(
+                    f"{name} is empty",
+                    "Provide non-empty data for plotting"
+                )
+        except TypeError:
+            # Data doesn't support len(), assume it's valid
+            pass
+    
+    @staticmethod
+    def validate_positive(value: float, name: str = "Value") -> None:
+        """
+        Validate that value is positive.
+        
+        Args:
+            value: Value to validate
+            name: Name for error messages
+            
+        Raises:
+            InvalidParameterError: If value is not positive
+        """
+        if value <= 0:
+            raise InvalidParameterError(
+                f"{name} must be positive, got {value}",
+                "Use a positive value greater than 0"
+            )
 
 
 # ============================================================================
-# Decorators for Error Handling
+# DECORATOR FOR ERROR HANDLING
 # ============================================================================
 
 def handle_plot_errors(func: Callable) -> Callable:
     """
     Decorator to handle common plotting errors gracefully.
     
+    Catches exceptions and provides user-friendly error messages.
+    
     Args:
         func: Function to wrap
         
     Returns:
         Wrapped function with error handling
+        
+    Example:
+        @handle_plot_errors
+        def create_plot(self, x, y):
+            # plotting code
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
+        
         except LightenPlotError:
             # Re-raise our custom errors as-is
             raise
+        
         except KeyError as e:
-            # Handle missing keys/columns
             raise ColumnNotFoundError(
-                str(e).strip("'\""),
-                []
+                f"Column {e} not found in data",
+                "Check your column names and ensure they exist in the DataFrame"
             ) from e
+        
         except ValueError as e:
-            # Handle value errors
             raise DataValidationError(
-                str(e),
-                "Check your data format and parameter values"
+                f"Invalid data: {str(e)}",
+                "Verify your data format and values"
             ) from e
+        
         except TypeError as e:
-            # Handle type errors
             raise InvalidParameterError(
-                str(e),
+                f"Invalid parameter type: {str(e)}",
                 "Check parameter types match expected values"
             ) from e
+        
         except Exception as e:
-            # Handle unexpected errors
             raise PlotCreationError(
-                f"Unexpected error during plot creation: {str(e)}",
-                "This may be a bug. Please report it with your data structure."
+                f"Failed to create plot: {str(e)}",
+                "Check your data and parameters, or report this as a bug"
             ) from e
     
     return wrapper
 
 
-def validate_inputs(**validators):
+# ============================================================================
+# DECORATOR FOR INPUT VALIDATION
+# ============================================================================
+
+def validate_inputs(**validators) -> Callable:
     """
-    Decorator to validate function inputs.
+    Decorator to validate function inputs before execution.
     
     Args:
-        **validators: Keyword arguments mapping parameter names to validator functions
-        
+        **validators: Keyword arguments mapping parameter names to 
+                     validation functions
+    
     Returns:
         Decorator function
         
     Example:
         @validate_inputs(
-            x=lambda x: validate_column_exists(data, x),
-            alpha=lambda a: validate_parameter_range('alpha', a, 0, 1)
+            x=lambda col: isinstance(col, str),
+            alpha=lambda val: 0.0 <= val <= 1.0
         )
-        def create(self, x, y, alpha=0.7):
-            ...
+        def create_plot(self, x, y, alpha=0.7):
+            pass
     """
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            # Get function signature to map args to kwargs
+            # Get function signature
             import inspect
             sig = inspect.signature(func)
-            bound_args = sig.bind(*args, **kwargs)
-            bound_args.apply_defaults()
+            bound = sig.bind(*args, **kwargs)
+            bound.apply_defaults()
             
-            # Run validators
-            for param_name, validator in validators.items():
-                if param_name in bound_args.arguments:
+            # Validate each parameter
+            for param_name, validator_func in validators.items():
+                if param_name in bound.arguments:
+                    value = bound.arguments[param_name]
                     try:
-                        validator(bound_args.arguments[param_name])
-                    except LightenPlotError:
-                        raise
+                        if not validator_func(value):
+                            raise InvalidParameterError(
+                                f"Validation failed for parameter '{param_name}' with value {value}",
+                                f"Check the requirements for '{param_name}'"
+                            )
                     except Exception as e:
-                        raise DataValidationError(
-                            f"Validation failed for parameter '{param_name}': {str(e)}",
-                            "Check the parameter value and try again"
+                        if isinstance(e, LightenPlotError):
+                            raise
+                        raise InvalidParameterError(
+                            f"Validation error for '{param_name}': {str(e)}",
+                            f"Ensure '{param_name}' meets the required constraints"
                         ) from e
             
             return func(*args, **kwargs)
@@ -380,233 +317,466 @@ def validate_inputs(**validators):
     return decorator
 
 
-def safe_export(func: Callable) -> Callable:
+# ============================================================================
+# WARNING SYSTEM
+# ============================================================================
+
+class PlotWarning:
+    """Class for handling non-critical warnings."""
+    
+    _warnings_enabled = True
+    
+    @classmethod
+    def warn(cls, message: str, category: str = "General") -> None:
+        """
+        Issue a warning message.
+        
+        Args:
+            message: Warning message
+            category: Warning category
+        """
+        if cls._warnings_enabled:
+            print(f"LightenPlot {category} Warning: {message}")
+    
+    @classmethod
+    def enable_warnings(cls) -> None:
+        """Enable warning messages."""
+        cls._warnings_enabled = True
+    
+    @classmethod
+    def disable_warnings(cls) -> None:
+        """Disable warning messages."""
+        cls._warnings_enabled = False
+
+
+# ============================================================================
+# CONTEXT MANAGER FOR ERROR HANDLING
+# ============================================================================
+
+class safe_plot:
     """
-    Decorator to handle export errors gracefully.
+    Context manager for safe plotting operations.
+    
+    Example:
+        with safe_plot("Creating scatter plot"):
+            plot.create(x='age', y='salary')
+    """
+    
+    def __init__(self, operation: str = "Plot operation"):
+        """
+        Initialize context manager.
+        
+        Args:
+            operation: Description of the operation
+        """
+        self.operation = operation
+    
+    def __enter__(self):
+        """Enter context."""
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context and handle exceptions."""
+        if exc_type is not None:
+            if issubclass(exc_type, LightenPlotError):
+                # Our custom errors are already well-formatted
+                return False
+            
+            # Wrap other exceptions
+            print(f"✘ Error during {self.operation}")
+            print(f"   {exc_type.__name__}: {exc_val}")
+            print("Check your data and parameters")
+            return True  # Suppress the exception
+        
+        return False# lightenplot/errors2.py
+"""
+Comprehensive error handling system for LightenPlot library.
+Provides custom exceptions, decorators, and validation utilities.
+"""
+
+import functools
+import pandas as pd
+import numpy as np
+from typing import Any, Callable, List, Optional
+
+
+# ============================================================================
+# CUSTOM EXCEPTIONS
+# ============================================================================
+
+class LightenPlotError(Exception):
+    """Base exception class for all LightenPlot errors."""
+    
+    def __init__(self, message: str, suggestion: Optional[str] = None):
+        """
+        Initialize error with message and optional suggestion.
+        
+        Args:
+            message: Error description
+            suggestion: Helpful suggestion to fix the error
+        """
+        self.message = message
+        self.suggestion = suggestion
+        super().__init__(self.format_message())
+    
+    def format_message(self) -> str:
+        """Format error message with suggestion if available."""
+        msg = f"LightenPlot Error: {self.message}"
+        if self.suggestion:
+            msg += f"\nSuggestion: {self.suggestion}"
+        return msg
+
+
+class DataValidationError(LightenPlotError):
+    """Raised when input data fails validation."""
+    pass
+
+
+class ColumnNotFoundError(LightenPlotError):
+    """Raised when specified column doesn't exist in DataFrame."""
+    pass
+
+
+class InvalidThemeError(LightenPlotError):
+    """Raised when an invalid theme is specified."""
+    pass
+
+
+class PlotCreationError(LightenPlotError):
+    """Raised when plot creation fails."""
+    pass
+
+
+class ExportError(LightenPlotError):
+    """Raised when plot export fails."""
+    pass
+
+
+class InvalidParameterError(LightenPlotError):
+    """Raised when invalid parameters are provided."""
+    pass
+
+
+# ============================================================================
+# DATA VALIDATOR CLASS
+# ============================================================================
+
+class DataValidator:
+    """
+    Static utility class for data validation.
+    Provides methods to validate common data requirements.
+    """
+    
+    @staticmethod
+    def validate_dataframe(data: Any, name: str = "Data") -> None:
+        """
+        Validate that data is a non-empty DataFrame.
+        
+        Args:
+            data: Data to validate
+            name: Name for error messages
+            
+        Raises:
+            DataValidationError: If validation fails
+        """
+        if not isinstance(data, pd.DataFrame):
+            raise DataValidationError(
+                f"{name} must be a pandas DataFrame, got {type(data).__name__}",
+                "Convert your data to DataFrame using pd.DataFrame(data)"
+            )
+        
+        if data.empty:
+            raise DataValidationError(
+                f"{name} is empty",
+                "Ensure your DataFrame contains data before plotting"
+            )
+    
+    @staticmethod
+    def validate_columns_exist(data: pd.DataFrame, columns: List[str]) -> None:
+        """
+        Validate that all specified columns exist in DataFrame.
+        
+        Args:
+            data: DataFrame to check
+            columns: List of column names to validate
+            
+        Raises:
+            ColumnNotFoundError: If any column is missing
+        """
+        if not isinstance(data, pd.DataFrame):
+            return  # Skip if not a DataFrame
+        
+        missing_cols = [col for col in columns if col not in data.columns]
+        
+        if missing_cols:
+            available = list(data.columns)
+            raise ColumnNotFoundError(
+                f"Column(s) not found: {missing_cols}",
+                f"Available columns: {available}"
+            )
+    
+    @staticmethod
+    def validate_numeric(data: pd.Series, name: str = "Data") -> None:
+        """
+        Validate that data is numeric.
+        
+        Args:
+            data: Series to validate
+            name: Name for error messages
+            
+        Raises:
+            DataValidationError: If data is not numeric
+        """
+        if not pd.api.types.is_numeric_dtype(data):
+            raise DataValidationError(
+                f"{name} must be numeric, got {data.dtype}",
+                "Convert to numeric using pd.to_numeric() or use appropriate data"
+            )
+    
+    @staticmethod
+    def validate_range(value: float, min_val: float, max_val: float, 
+                      name: str = "Value") -> None:
+        """
+        Validate that value is within specified range.
+        
+        Args:
+            value: Value to validate
+            min_val: Minimum allowed value
+            max_val: Maximum allowed value
+            name: Name for error messages
+            
+        Raises:
+            InvalidParameterError: If value is out of range
+        """
+        if not (min_val <= value <= max_val):
+            raise InvalidParameterError(
+                f"{name} must be between {min_val} and {max_val}, got {value}",
+                f"Use a value within the valid range [{min_val}, {max_val}]"
+            )
+    
+    @staticmethod
+    def validate_not_empty(data: Any, name: str = "Data") -> None:
+        """
+        Validate that data is not empty.
+        
+        Args:
+            data: Data to validate
+            name: Name for error messages
+            
+        Raises:
+            DataValidationError: If data is empty
+        """
+        try:
+            if len(data) == 0:
+                raise DataValidationError(
+                    f"{name} is empty",
+                    "Provide non-empty data for plotting"
+                )
+        except TypeError:
+            # Data doesn't support len(), assume it's valid
+            pass
+    
+    @staticmethod
+    def validate_positive(value: float, name: str = "Value") -> None:
+        """
+        Validate that value is positive.
+        
+        Args:
+            value: Value to validate
+            name: Name for error messages
+            
+        Raises:
+            InvalidParameterError: If value is not positive
+        """
+        if value <= 0:
+            raise InvalidParameterError(
+                f"{name} must be positive, got {value}",
+                "Use a positive value greater than 0"
+            )
+
+
+# ============================================================================
+# DECORATOR FOR ERROR HANDLING
+# ============================================================================
+
+def handle_plot_errors(func: Callable) -> Callable:
+    """
+    Decorator to handle common plotting errors gracefully.
+    
+    Catches exceptions and provides user-friendly error messages.
     
     Args:
-        func: Export function to wrap
+        func: Function to wrap
         
     Returns:
         Wrapped function with error handling
+        
+    Example:
+        @handle_plot_errors
+        def create_plot(self, x, y):
+            # plotting code
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except (IOError, OSError, PermissionError) as e:
-            raise ExportError(
-                f"Failed to save file: {str(e)}",
-                "Check file path, permissions, and available disk space"
+        
+        except LightenPlotError:
+            # Re-raise our custom errors as-is
+            raise
+        
+        except KeyError as e:
+            raise ColumnNotFoundError(
+                f"Column {e} not found in data",
+                "Check your column names and ensure they exist in the DataFrame"
             ) from e
+        
+        except ValueError as e:
+            raise DataValidationError(
+                f"Invalid data: {str(e)}",
+                "Verify your data format and values"
+            ) from e
+        
+        except TypeError as e:
+            raise InvalidParameterError(
+                f"Invalid parameter type: {str(e)}",
+                "Check parameter types match expected values"
+            ) from e
+        
         except Exception as e:
-            raise ExportError(
-                f"Unexpected error during export: {str(e)}",
-                "Ensure the file format is supported and the path is valid"
+            raise PlotCreationError(
+                f"Failed to create plot: {str(e)}",
+                "Check your data and parameters, or report this as a bug"
             ) from e
     
     return wrapper
 
 
 # ============================================================================
-# Context Managers
+# DECORATOR FOR INPUT VALIDATION
 # ============================================================================
 
-class suppress_warnings:
+def validate_inputs(**validators) -> Callable:
     """
-    Context manager to suppress matplotlib/seaborn warnings during plotting.
-    
-    Example:
-        with suppress_warnings():
-            plot.create(x='col1', y='col2')
-    """
-    
-    def __enter__(self):
-        import warnings
-        self._original_filters = warnings.filters[:]
-        warnings.filterwarnings('ignore')
-        return self
-    
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        import warnings
-        warnings.filters = self._original_filters
-        return False
-
-
-class plot_context:
-    """
-    Context manager for safe plot creation with automatic cleanup.
-    
-    Example:
-        with plot_context() as ctx:
-            plot = ScatterPlot(data)
-            plot.create(x='x', y='y')
-    """
-    
-    def __init__(self, cleanup_on_error: bool = True):
-        """
-        Initialize plot context.
-        
-        Args:
-            cleanup_on_error: If True, close figures on error
-        """
-        self.cleanup_on_error = cleanup_on_error
-        self.figures = []
-    
-    def __enter__(self):
-        import matplotlib.pyplot as plt
-        self.original_figures = plt.get_fignums()
-        return self
-    
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is not None and self.cleanup_on_error:
-            import matplotlib.pyplot as plt
-            # Close any new figures created during the context
-            current_figures = plt.get_fignums()
-            new_figures = set(current_figures) - set(self.original_figures)
-            for fig_num in new_figures:
-                plt.close(fig_num)
-        return False
-
-
-# ============================================================================
-# Error Reporting Utilities
-# ============================================================================
-
-def create_error_report(error: Exception, include_traceback: bool = False) -> str:
-    """
-    Create a formatted error report.
+    Decorator to validate function inputs before execution.
     
     Args:
-        error: Exception to report
-        include_traceback: If True, include full traceback
-        
+        **validators: Keyword arguments mapping parameter names to 
+                     validation functions
+    
     Returns:
-        Formatted error report string
-    """
-    report_lines = [
-        "=" * 70,
-        "LightenPlot Error Report",
-        "=" * 70,
-        f"Error Type: {type(error).__name__}",
-        f"Message: {str(error)}",
-    ]
-    
-    if isinstance(error, LightenPlotError) and error.suggestion:
-        report_lines.extend([
-            "",
-            f"Suggestion: {error.suggestion}",
-        ])
-    
-    if include_traceback:
-        report_lines.extend([
-            "",
-            "Traceback:",
-            "-" * 70,
-            "".join(traceback.format_tb(error.__traceback__)),
-        ])
-    
-    report_lines.append("=" * 70)
-    
-    return "\n".join(report_lines)
-
-
-def log_error(error: Exception, log_file: str = "lightenplot_errors.log") -> None:
-    """
-    Log error to file.
-    
-    Args:
-        error: Exception to log
-        log_file: Path to log file
-    """
-    import datetime
-    
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_entry = f"\n[{timestamp}]\n{create_error_report(error, include_traceback=True)}\n"
-    
-    try:
-        with open(log_file, 'a') as f:
-            f.write(log_entry)
-    except Exception:
-        # Fail silently if logging doesn't work
-        pass
-
-
-# ============================================================================
-# Validation Helper Class
-# ============================================================================
-
-class DataValidator:
-    """
-    Utility class for comprehensive data validation.
-    
+        Decorator function
+        
     Example:
-        validator = DataValidator(data)
-        validator.check_not_empty()
-        validator.check_columns(['x', 'y'])
-        validator.check_numeric(['x', 'y'])
+        @validate_inputs(
+            x=lambda col: isinstance(col, str),
+            alpha=lambda val: 0.0 <= val <= 1.0
+        )
+        def create_plot(self, x, y, alpha=0.7):
+            pass
     """
+    def decorator(func: Callable) -> Callable:
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            # Get function signature
+            import inspect
+            sig = inspect.signature(func)
+            bound = sig.bind(*args, **kwargs)
+            bound.apply_defaults()
+            
+            # Validate each parameter
+            for param_name, validator_func in validators.items():
+                if param_name in bound.arguments:
+                    value = bound.arguments[param_name]
+                    try:
+                        if not validator_func(value):
+                            raise InvalidParameterError(
+                                f"Validation failed for parameter '{param_name}' with value {value}",
+                                f"Check the requirements for '{param_name}'"
+                            )
+                    except Exception as e:
+                        if isinstance(e, LightenPlotError):
+                            raise
+                        raise InvalidParameterError(
+                            f"Validation error for '{param_name}': {str(e)}",
+                            f"Ensure '{param_name}' meets the required constraints"
+                        ) from e
+            
+            return func(*args, **kwargs)
+        
+        return wrapper
+    return decorator
+
+
+# ============================================================================
+# WARNING SYSTEM
+# ============================================================================
+
+class PlotWarning:
+    """Class for handling non-critical warnings."""
     
-    def __init__(self, data: Any):
+    _warnings_enabled = True
+    
+    @classmethod
+    def warn(cls, message: str, category: str = "General") -> None:
         """
-        Initialize validator with data.
+        Issue a warning message.
         
         Args:
-            data: Data to validate
+            message: Warning message
+            category: Warning category
         """
-        self.data = data
-        self.errors = []
+        if cls._warnings_enabled:
+            print(f"LightenPlot {category} Warning: {message}")
     
-    def check_not_empty(self) -> 'DataValidator':
-        """Check data is not empty."""
-        try:
-            validate_data_not_empty(self.data)
-        except LightenPlotError as e:
-            self.errors.append(e)
-        return self
+    @classmethod
+    def enable_warnings(cls) -> None:
+        """Enable warning messages."""
+        cls._warnings_enabled = True
     
-    def check_columns(self, columns: List[str]) -> 'DataValidator':
-        """Check columns exist."""
-        if isinstance(self.data, pd.DataFrame):
-            for col in columns:
-                try:
-                    validate_column_exists(self.data, col)
-                except LightenPlotError as e:
-                    self.errors.append(e)
-        return self
+    @classmethod
+    def disable_warnings(cls) -> None:
+        """Disable warning messages."""
+        cls._warnings_enabled = False
+
+
+# ============================================================================
+# CONTEXT MANAGER FOR ERROR HANDLING
+# ============================================================================
+
+class safe_plot:
+    """
+    Context manager for safe plotting operations.
     
-    def check_numeric(self, columns: List[str]) -> 'DataValidator':
-        """Check columns are numeric."""
-        if isinstance(self.data, pd.DataFrame):
-            for col in columns:
-                try:
-                    validate_numeric_column(self.data, col)
-                except LightenPlotError as e:
-                    self.errors.append(e)
-        return self
+    Example:
+        with safe_plot("Creating scatter plot"):
+            plot.create(x='age', y='salary')
+    """
     
-    def check_dimensions(self, expected_dims: int) -> 'DataValidator':
-        """Check data dimensions."""
-        try:
-            validate_data_dimensions(self.data, expected_dims)
-        except LightenPlotError as e:
-            self.errors.append(e)
-        return self
-    
-    def validate(self) -> None:
+    def __init__(self, operation: str = "Plot operation"):
         """
-        Raise first error if any validations failed.
+        Initialize context manager.
         
-        Raises:
-            LightenPlotError: First validation error encountered
+        Args:
+            operation: Description of the operation
         """
-        if self.errors:
-            raise self.errors[0]
+        self.operation = operation
     
-    def get_errors(self) -> List[LightenPlotError]:
-        """Get all validation errors."""
-        return self.errors
+    def __enter__(self):
+        """Enter context."""
+        return self
     
-    def is_valid(self) -> bool:
-        """Check if all validations passed."""
-        return len(self.errors) == 0
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context and handle exceptions."""
+        if exc_type is not None:
+            if issubclass(exc_type, LightenPlotError):
+                # Our custom errors are already well-formatted
+                return False
+            
+            # Wrap other exceptions
+            print(f"✘ Error during {self.operation}")
+            print(f"   {exc_type.__name__}: {exc_val}")
+            print("Check your data and parameters")
+            return True  # Suppress the exception
+        
+        return False
