@@ -26,6 +26,8 @@ Lightenplot is a Python library that reduces complex visualization code into sin
 * [License](#LICENSE)
 * [Contact](#contact)
 
+## UML Diagram
+![LightenPlot UML Architecture](./UML_Diagram/LightenPlot_UML-Diagram.png) 
 
 ## Features
 
@@ -206,7 +208,6 @@ Lightenplot is built with solid OOP principles:
 4. **ThemeManager**: Manage and apply themes (singleton pattern)
 5. **PlotExporter**: Handle plot exports
 
-![LightenPlot UML Architecture](./UML_Diagram/LightenPlot_UML-Diagram.png)
 
 ### OOP Features Demonstrated
 
